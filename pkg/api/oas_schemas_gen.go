@@ -11,10 +11,10 @@ type AirplaneGetParkingSpotBadRequest struct{}
 
 func (*AirplaneGetParkingSpotBadRequest) airplaneGetParkingSpotRes() {}
 
-// AirplaneGetParkingSpotForbidden is response for AirplaneGetParkingSpot operation.
-type AirplaneGetParkingSpotForbidden struct{}
+// AirplaneGetParkingSpotConflict is response for AirplaneGetParkingSpot operation.
+type AirplaneGetParkingSpotConflict struct{}
 
-func (*AirplaneGetParkingSpotForbidden) airplaneGetParkingSpotRes() {}
+func (*AirplaneGetParkingSpotConflict) airplaneGetParkingSpotRes() {}
 
 type AirplaneGetParkingSpotOK struct {
 	// ID узла.
@@ -38,10 +38,10 @@ type AirplaneIDServiceTypeGetBadRequest struct{}
 
 func (*AirplaneIDServiceTypeGetBadRequest) airplaneIDServiceTypeGetRes() {}
 
-// AirplaneIDServiceTypeGetForbidden is response for AirplaneIDServiceTypeGet operation.
-type AirplaneIDServiceTypeGetForbidden struct{}
+// AirplaneIDServiceTypeGetConflict is response for AirplaneIDServiceTypeGet operation.
+type AirplaneIDServiceTypeGetConflict struct{}
 
-func (*AirplaneIDServiceTypeGetForbidden) airplaneIDServiceTypeGetRes() {}
+func (*AirplaneIDServiceTypeGetConflict) airplaneIDServiceTypeGetRes() {}
 
 type AirplaneIDServiceTypeGetOK struct {
 	// ID узла.
@@ -235,10 +235,10 @@ type MovingRegisterVehicleBadRequest struct{}
 
 func (*MovingRegisterVehicleBadRequest) movingRegisterVehicleRes() {}
 
-// MovingRegisterVehicleForbidden is response for MovingRegisterVehicle operation.
-type MovingRegisterVehicleForbidden struct{}
+// MovingRegisterVehicleConflict is response for MovingRegisterVehicle operation.
+type MovingRegisterVehicleConflict struct{}
 
-func (*MovingRegisterVehicleForbidden) movingRegisterVehicleRes() {}
+func (*MovingRegisterVehicleConflict) movingRegisterVehicleRes() {}
 
 type MovingRegisterVehicleOK struct {
 	// ID узла.
@@ -359,8 +359,9 @@ func (s *MovingRequestMoveReq) SetTo(val string) {
 // Ref: #/components/schemas/Node
 type Node struct {
 	// Уникальный идентификатор узла.
-	ID    string        `json:"id"`
-	Types []VehicleType `json:"types"`
+	ID       string        `json:"id"`
+	Types    []VehicleType `json:"types"`
+	Vehicles []Vehicle     `json:"vehicles"`
 }
 
 // GetID returns the value of ID.
@@ -373,6 +374,11 @@ func (s *Node) GetTypes() []VehicleType {
 	return s.Types
 }
 
+// GetVehicles returns the value of Vehicles.
+func (s *Node) GetVehicles() []Vehicle {
+	return s.Vehicles
+}
+
 // SetID sets the value of ID.
 func (s *Node) SetID(val string) {
 	s.ID = val
@@ -381,6 +387,38 @@ func (s *Node) SetID(val string) {
 // SetTypes sets the value of Types.
 func (s *Node) SetTypes(val []VehicleType) {
 	s.Types = val
+}
+
+// SetVehicles sets the value of Vehicles.
+func (s *Node) SetVehicles(val []Vehicle) {
+	s.Vehicles = val
+}
+
+// Ref: #/components/schemas/Vehicle
+type Vehicle struct {
+	// Уникальный идентификатор транспорта.
+	ID   string      `json:"id"`
+	Type VehicleType `json:"type"`
+}
+
+// GetID returns the value of ID.
+func (s *Vehicle) GetID() string {
+	return s.ID
+}
+
+// GetType returns the value of Type.
+func (s *Vehicle) GetType() VehicleType {
+	return s.Type
+}
+
+// SetID sets the value of ID.
+func (s *Vehicle) SetID(val string) {
+	s.ID = val
+}
+
+// SetType sets the value of Type.
+func (s *Vehicle) SetType(val VehicleType) {
+	s.Type = val
 }
 
 // Тип транспорта.

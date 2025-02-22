@@ -32,9 +32,9 @@ func encodeAirplaneGetParkingSpotResponse(response AirplaneGetParkingSpotRes, w 
 
 		return nil
 
-	case *AirplaneGetParkingSpotForbidden:
-		w.WriteHeader(403)
-		span.SetStatus(codes.Error, http.StatusText(403))
+	case *AirplaneGetParkingSpotConflict:
+		w.WriteHeader(409)
+		span.SetStatus(codes.Error, http.StatusText(409))
 
 		return nil
 
@@ -64,9 +64,9 @@ func encodeAirplaneIDServiceTypeGetResponse(response AirplaneIDServiceTypeGetRes
 
 		return nil
 
-	case *AirplaneIDServiceTypeGetForbidden:
-		w.WriteHeader(403)
-		span.SetStatus(codes.Error, http.StatusText(403))
+	case *AirplaneIDServiceTypeGetConflict:
+		w.WriteHeader(409)
+		span.SetStatus(codes.Error, http.StatusText(409))
 
 		return nil
 
@@ -193,9 +193,9 @@ func encodeMovingRegisterVehicleResponse(response MovingRegisterVehicleRes, w ht
 
 		return nil
 
-	case *MovingRegisterVehicleForbidden:
-		w.WriteHeader(403)
-		span.SetStatus(codes.Error, http.StatusText(403))
+	case *MovingRegisterVehicleConflict:
+		w.WriteHeader(409)
+		span.SetStatus(codes.Error, http.StatusText(409))
 
 		return nil
 

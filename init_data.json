@@ -1,0 +1,284 @@
+{
+  "nodes": [
+    {
+      "id": "airstrip",
+      "types": ["airplane", "follow-me"]
+    },
+    {
+      "id": "airplane_crossroad",
+      "types": ["airplane", "follow-me"]
+    },
+    {
+      "id": "airplane_parking_1",
+      "types": ["airplane", "follow-me"]
+    },
+    {
+      "id": "airplane_parking_2",
+      "types": ["airplane", "follow-me"]
+    },
+    {
+      "id": "cleaning_1",
+      "types": ["cleaning"]
+    },
+    {
+      "id": "cleaning_2",
+      "types": ["cleaning"]
+    },
+    {
+      "id": "catering_1",
+      "types": ["catering"]
+    },
+    {
+      "id": "catering_2",
+      "types": ["catering"]
+    },
+    {
+      "id": "refueling_1",
+      "types": ["refueling"]
+    },
+    {
+      "id": "refueling_2",
+      "types": ["refueling"]
+    },
+    {
+      "id": "charging_1",
+      "types": ["charging"]
+    },
+    {
+      "id": "charging_2",
+      "types": ["charging"]
+    },
+    {
+      "id": "baggage_1",
+      "types": ["baggage"]
+    },
+    {
+      "id": "baggage_2",
+      "types": ["baggage"]
+    },
+    {
+      "id": "bus_1",
+      "types": ["bus"]
+    },
+    {
+      "id": "bus_2",
+      "types": ["bus"]
+    },
+    {
+      "id": "ramp_1",
+      "types": ["ramp"]
+    },
+    {
+      "id": "ramp_2",
+      "types": ["ramp"]
+    },
+    {
+      "id": "garrage",
+      "types": [
+        "follow-me",
+        "catering",
+        "refueling",
+        "cleaning",
+        "baggage",
+        "charging",
+        "bus",
+        "ramp"
+      ]
+    },
+    {
+      "id": "parking_1_crossroad",
+      "types": [
+        "catering",
+        "refueling",
+        "cleaning",
+        "baggage",
+        "charging",
+        "bus",
+        "ramp"
+      ]
+    },
+    {
+      "id": "parking_2_crossroad",
+      "types": [
+        "catering",
+        "refueling",
+        "cleaning",
+        "baggage",
+        "charging",
+        "bus",
+        "ramp"
+      ]
+    },
+    {
+      "id": "airport",
+      "types": []
+    }
+  ],
+  "edges": [
+    {
+      "from": "airstripe",
+      "to": "airplane_crossroad",
+      "distance": 100
+    },
+    {
+      "from": "airplane_crossroad",
+      "to": "airplane_parking_1",
+      "distance": 100
+    },
+    {
+      "from": "airplane_crossroad",
+      "to": "airplane_parking_2",
+      "distance": 300
+    },
+    {
+      "from": "airplane_parking_1",
+      "to": "cleaning_1",
+      "distance": 10
+    },
+    {
+      "from": "airplane_parking_2",
+      "to": "cleaning_2",
+      "distance": 10
+    },
+    {
+      "from": "airplane_parking_1",
+      "to": "catering_1",
+      "distance": 10
+    },
+    {
+      "from": "airplane_parking_2",
+      "to": "catering_2",
+      "distance": 10
+    },
+    {
+      "from": "airplane_parking_1",
+      "to": "refueling_1",
+      "distance": 10
+    },
+    {
+      "from": "airplane_parking_2",
+      "to": "refueling_2",
+      "distance": 10
+    },
+    {
+      "from": "airplane_parking_1",
+      "to": "charging_1",
+      "distance": 10
+    },
+    {
+      "from": "airplane_parking_2",
+      "to": "charging_2",
+      "distance": 10
+    },
+    {
+      "from": "airplane_parking_1",
+      "to": "baggage_1",
+      "distance": 10
+    },
+    {
+      "from": "airplane_parking_2",
+      "to": "baggage_2",
+      "distance": 10
+    },
+    {
+      "from": "airplane_parking_1",
+      "to": "bus_1",
+      "distance": 10
+    },
+    {
+      "from": "airplane_parking_2",
+      "to": "bus_2",
+      "distance": 10
+    },
+    {
+      "from": "airplane_parking_1",
+      "to": "ramp_1",
+      "distance": 50
+    },
+    {
+      "from": "airplane_parking_2",
+      "to": "ramp_2",
+      "distance": 50
+    },
+    {
+      "from": "garrage",
+      "to": "parking_1_crossroad",
+      "distance": 200
+    },
+    {
+      "from": "garrage",
+      "to": "parking_2_crossroad",
+      "distance": 400
+    },
+    {
+      "from": "parking_1_crossroad",
+      "to": "cleaning_1",
+      "distance": 50
+    },
+    {
+      "from": "parking_1_crossroad",
+      "to": "catering_1",
+      "distance": 50
+    },
+    {
+      "from": "parking_1_crossroad",
+      "to": "refueling_1",
+      "distance": 50
+    },
+    {
+      "from": "parking_1_crossroad",
+      "to": "charging_1",
+      "distance": 50
+    },
+    {
+      "from": "parking_1_crossroad",
+      "to": "baggage_1",
+      "distance": 50
+    },
+    {
+      "from": "parking_1_crossroad",
+      "to": "bus_1",
+      "distance": 50
+    },
+    {
+      "from": "parking_1_crossroad",
+      "to": "ramp_1",
+      "distance": 50
+    },
+    {
+      "from": "parking_2_crossroad",
+      "to": "cleaning_2",
+      "distance": 50
+    },
+    {
+      "from": "parking_2_crossroad",
+      "to": "catering_2",
+      "distance": 50
+    },
+    {
+      "from": "parking_2_crossroad",
+      "to": "refueling_2",
+      "distance": 50
+    },
+    {
+      "from": "parking_2_crossroad",
+      "to": "charging_2",
+      "distance": 50
+    },
+    {
+      "from": "parking_2_crossroad",
+      "to": "baggage_2",
+      "distance": 50
+    },
+    {
+      "from": "parking_2_crossroad",
+      "to": "bus_2",
+      "distance": 50
+    },
+    {
+      "from": "parking_2_crossroad",
+      "to": "ramp_2",
+      "distance": 50
+    }
+  ]
+}

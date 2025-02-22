@@ -19,19 +19,23 @@ type LoggerConfig struct {
 }
 
 type ServerConfig struct {
-	Port int `mapstructure:"port"`
+	Port              int `mapstructure:"port"`
+	ReadHeaderTimeout int `mapstructure:"read_header_timeout"`
 }
 
-func LoadConfig(path string) (config *Config, err error) {
+func LoadConfig(path string) (*Config, error) {
 	viper.SetConfigFile(path)
-
 	viper.AutomaticEnv()
 
-	if err := viper.ReadInConfig(); err != nil {
+	err := viper.ReadInConfig()
+	if err != nil {
 		return &Config{}, fmt.Errorf("viper.ReadInConfig: %w", err)
 	}
 
-	if err := viper.Unmarshal(&config); err != nil {
+	config := &Config{}
+
+	err = viper.Unmarshal(config)
+	if err != nil {
 		return &Config{}, fmt.Errorf("viper.Unmarshal: %w", err)
 	}
 

@@ -2,12 +2,23 @@ package controller
 
 import (
 	"context"
-	"errors"
+	"fmt"
 
+	"github.com/reaport/ground-control/internal/controller/convert"
 	"github.com/reaport/ground-control/pkg/api"
 )
 
 // GET /map.
-func (c *Controller) MapGetAirportMap(_ context.Context) (*api.AirportMap, error) {
-	return nil, errors.New("not implemented")
+func (c *Controller) MapGetAirportMap(ctx context.Context) (*api.AirportMap, error) {
+	airportMap, err := c.mapService.GetAirportMap(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("MapService.GetAirportMap: %w", err)
+	}
+
+	apiAirportMap, err := convert.AirportMapToAPI(airportMap)
+	if err != nil {
+		return nil, fmt.Errorf("convert.AirportMapToAPI: %w", err)
+	}
+
+	return apiAirportMap, nil
 }

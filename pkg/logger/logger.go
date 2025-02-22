@@ -6,6 +6,7 @@ import (
 	"go.uber.org/zap"
 )
 
+//nolint:gochecknoglobals // global by design
 var GlobalLogger *zap.Logger
 
 func InitLogger(level string, development bool) error {

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"flag"
 	"fmt"
 	"net/http"
@@ -18,9 +19,13 @@ import (
 	"go.uber.org/zap"
 )
 
+const (
+	shutdownTimeout = 5
+)
+
 func main() {
-	configPath := flag.String("config", "config/config.yaml", "config path")
-	initMapPath := flag.String("init-map", "config/init-map.json", "init map path")
+	configPath := flag.String("config", "config.yaml", "config path")
+	initMapPath := flag.String("init-data", "init_data.json", "init map path")
 	flag.Parse()
 
 	config, err := config.LoadConfig(*configPath)
@@ -32,7 +37,12 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	defer logger.GlobalLogger.Sync()
+	defer func() {
+		err = logger.GlobalLogger.Sync()
+		if err != nil {
+			panic(err)
+		}
+	}()
 
 	service, err := graphmap.New(*initMapPath)
 	if err != nil {
@@ -47,8 +57,9 @@ func main() {
 	}
 
 	httpServer := &http.Server{
-		Addr:    fmt.Sprintf(":%d", config.Server.Port),
-		Handler: server,
+		Addr:              fmt.Sprintf(":%d", config.Server.Port),
+		ReadHeaderTimeout: time.Duration(config.Server.ReadHeaderTimeout) * time.Second,
+		Handler:           server,
 	}
 
 	done := make(chan os.Signal, 1)
@@ -56,7 +67,8 @@ func main() {
 
 	go func() {
 		logger.GlobalLogger.Info("cервер запущен", zap.Int("port", config.Server.Port))
-		if err := httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		err = httpServer.ListenAndServe()
+		if err != nil && !errors.Is(err, http.ErrServerClosed) {
 			panic(err)
 		}
 	}()
@@ -64,10 +76,11 @@ func main() {
 	<-done
 	logger.GlobalLogger.Info("cервер завершает работу...")
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeout*time.Second)
 	defer cancel()
 
-	if err := httpServer.Shutdown(ctx); err != nil {
+	err = httpServer.Shutdown(ctx)
+	if err != nil {
 		panic(err)
 	}
 }

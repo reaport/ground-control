@@ -54,9 +54,9 @@ func decodeAirplaneGetParkingSpotResponse(resp *http.Response) (res AirplaneGetP
 	case 400:
 		// Code 400.
 		return &AirplaneGetParkingSpotBadRequest{}, nil
-	case 403:
-		// Code 403.
-		return &AirplaneGetParkingSpotForbidden{}, nil
+	case 409:
+		// Code 409.
+		return &AirplaneGetParkingSpotConflict{}, nil
 	}
 	return res, validate.UnexpectedStatusCode(resp.StatusCode)
 }
@@ -101,9 +101,9 @@ func decodeAirplaneIDServiceTypeGetResponse(resp *http.Response) (res AirplaneID
 	case 400:
 		// Code 400.
 		return &AirplaneIDServiceTypeGetBadRequest{}, nil
-	case 403:
-		// Code 403.
-		return &AirplaneIDServiceTypeGetForbidden{}, nil
+	case 409:
+		// Code 409.
+		return &AirplaneIDServiceTypeGetConflict{}, nil
 	}
 	return res, validate.UnexpectedStatusCode(resp.StatusCode)
 }
@@ -287,9 +287,9 @@ func decodeMovingRegisterVehicleResponse(resp *http.Response) (res MovingRegiste
 	case 400:
 		// Code 400.
 		return &MovingRegisterVehicleBadRequest{}, nil
-	case 403:
-		// Code 403.
-		return &MovingRegisterVehicleForbidden{}, nil
+	case 409:
+		// Code 409.
+		return &MovingRegisterVehicleConflict{}, nil
 	}
 	return res, validate.UnexpectedStatusCode(resp.StatusCode)
 }

@@ -1,0 +1,15 @@
+logger:
+  level: debug
+  development: true
+
+server:
+  port: 8080
+  read_header_timeout: 5
+
+map:
+  airstrip: airstrip
+  airport: airport
+  garrage: garrage
+  airplane_parkings:
+    - airplane_parking_1
+    - airplane_parking_2
