@@ -1,0 +1,14 @@
+logger:
+  level: debug
+  development: true
+
+server:
+  port: 8080
+
+map:
+  airstrip: airstrip
+  airport: airport
+  aircraft_parkings:
+    - aircraft_parking_1
+    - aircraft_parking_2
+    - aircraft_parking_3
