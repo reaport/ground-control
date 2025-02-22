@@ -12,6 +12,7 @@ import (
 
 	"github.com/reaport/ground-control/internal/config"
 	"github.com/reaport/ground-control/internal/controller"
+	graphmap "github.com/reaport/ground-control/internal/service/graph-map"
 	"github.com/reaport/ground-control/pkg/api"
 	"github.com/reaport/ground-control/pkg/logger"
 	"go.uber.org/zap"
@@ -19,6 +20,7 @@ import (
 
 func main() {
 	configPath := flag.String("config", "config/config.yaml", "config path")
+	initMapPath := flag.String("init-map", "config/init-map.json", "init map path")
 	flag.Parse()
 
 	config, err := config.LoadConfig(*configPath)
@@ -32,7 +34,13 @@ func main() {
 	}
 	defer logger.GlobalLogger.Sync()
 
-	controller := controller.New(nil)
+	service, err := graphmap.New(*initMapPath)
+	if err != nil {
+		panic(err)
+	}
+
+	controller := controller.New(service)
+
 	server, err := api.NewServer(controller)
 	if err != nil {
 		panic(err)
