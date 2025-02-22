@@ -20,7 +20,7 @@ import (
 )
 
 const (
-	shutdownTimeout = 5
+	shutdownTimeout = 5 * time.Second
 )
 
 func main() {
@@ -28,37 +28,34 @@ func main() {
 	initMapPath := flag.String("init-data", "init_data.json", "init map path")
 	flag.Parse()
 
-	config, err := config.LoadConfig(*configPath)
+	cfg, err := config.LoadConfig(*configPath)
 	if err != nil {
-		panic(err)
+		logger.GlobalLogger.Fatal("failed to load config", zap.Error(err))
 	}
 
-	err = logger.InitLogger(config.Logger.Level, config.Logger.Development)
+	err = logger.InitLogger(cfg.Logger.Level, cfg.Logger.Development)
 	if err != nil {
-		panic(err)
+		logger.GlobalLogger.Fatal("failed to initialize logger", zap.Error(err))
 	}
 	defer func() {
-		err = logger.GlobalLogger.Sync()
-		if err != nil {
-			panic(err)
-		}
+		_ = logger.GlobalLogger.Sync()
 	}()
 
 	service, err := graphmap.New(*initMapPath)
 	if err != nil {
-		panic(err)
+		logger.GlobalLogger.Fatal("failed to initialize graph map service", zap.Error(err))
 	}
 
-	controller := controller.New(service)
+	ctrl := controller.New(service)
 
-	server, err := api.NewServer(controller)
+	server, err := api.NewServer(ctrl)
 	if err != nil {
-		panic(err)
+		logger.GlobalLogger.Fatal("failed to create server", zap.Error(err))
 	}
 
 	httpServer := &http.Server{
-		Addr:              fmt.Sprintf(":%d", config.Server.Port),
-		ReadHeaderTimeout: time.Duration(config.Server.ReadHeaderTimeout) * time.Second,
+		Addr:              fmt.Sprintf(":%d", cfg.Server.Port),
+		ReadHeaderTimeout: time.Duration(cfg.Server.ReadHeaderTimeout) * time.Second,
 		Handler:           server,
 	}
 
@@ -66,21 +63,23 @@ func main() {
 	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 
 	go func() {
-		logger.GlobalLogger.Info("cервер запущен", zap.Int("port", config.Server.Port))
+		logger.GlobalLogger.Info("server is starting", zap.Int("port", cfg.Server.Port))
 		err = httpServer.ListenAndServe()
 		if err != nil && !errors.Is(err, http.ErrServerClosed) {
-			panic(err)
+			logger.GlobalLogger.Fatal("server failed to start", zap.Error(err))
 		}
 	}()
 
 	<-done
-	logger.GlobalLogger.Info("cервер завершает работу...")
+	logger.GlobalLogger.Info("server is shutting down...")
 
-	ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeout*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
 	defer cancel()
 
 	err = httpServer.Shutdown(ctx)
 	if err != nil {
-		panic(err)
+		logger.GlobalLogger.Error("failed to shutdown server gracefully", zap.Error(err))
+	} else {
+		logger.GlobalLogger.Info("server shutdown completed")
 	}
 }
