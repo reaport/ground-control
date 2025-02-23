@@ -11,4 +11,8 @@ var (
 	ErrNodeNotFound               = errors.New("node not found")
 	ErrRouteNotFound              = errors.New("route not found")
 	ErrInvalidVehicleType         = errors.New("invalid vehicle type")
+
+	ErrVehicleNotFound = errors.New("vehicle not found")
+	ErrEdgeNotFound    = errors.New("edge not found")
+	ErrMoveNotAllowed  = errors.New("move is not allowed")
 )

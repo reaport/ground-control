@@ -87,6 +87,13 @@ func (c *Controller) MovingGetRoute(ctx context.Context, req *api.MovingGetRoute
 	}
 
 	apiRoute := api.MovingGetRouteOKApplicationJSON(route)
+	logger.GlobalLogger.Info(
+		"got route",
+		zap.String("from", req.From),
+		zap.String("to", req.To),
+		zap.String("vehicle_type", string(req.Type)),
+		zap.Any("route", route),
+	)
 
 	return &apiRoute, nil
 }

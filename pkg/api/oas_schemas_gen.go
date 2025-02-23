@@ -126,6 +126,77 @@ func (s *Edge) SetDistance(val float64) {
 	s.Distance = val
 }
 
+// Ref: #/components/schemas/ErrorResponse
+type ErrorResponse struct {
+	Code ErrorResponseCode `json:"code"`
+	// Описание ошибки.
+	Message OptString `json:"message"`
+}
+
+// GetCode returns the value of Code.
+func (s *ErrorResponse) GetCode() ErrorResponseCode {
+	return s.Code
+}
+
+// GetMessage returns the value of Message.
+func (s *ErrorResponse) GetMessage() OptString {
+	return s.Message
+}
+
+// SetCode sets the value of Code.
+func (s *ErrorResponse) SetCode(val ErrorResponseCode) {
+	s.Code = val
+}
+
+// SetMessage sets the value of Message.
+func (s *ErrorResponse) SetMessage(val OptString) {
+	s.Message = val
+}
+
+func (*ErrorResponse) movingNotifyArrivalRes() {}
+func (*ErrorResponse) movingRequestMoveRes()   {}
+
+type ErrorResponseCode string
+
+const (
+	ErrorResponseCodeVEHICLENOTFOUNDINNODE ErrorResponseCode = "VEHICLE_NOT_FOUND_IN_NODE"
+	ErrorResponseCodeEDGENOTFOUND          ErrorResponseCode = "EDGE_NOT_FOUND"
+)
+
+// AllValues returns all ErrorResponseCode values.
+func (ErrorResponseCode) AllValues() []ErrorResponseCode {
+	return []ErrorResponseCode{
+		ErrorResponseCodeVEHICLENOTFOUNDINNODE,
+		ErrorResponseCodeEDGENOTFOUND,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s ErrorResponseCode) MarshalText() ([]byte, error) {
+	switch s {
+	case ErrorResponseCodeVEHICLENOTFOUNDINNODE:
+		return []byte(s), nil
+	case ErrorResponseCodeEDGENOTFOUND:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *ErrorResponseCode) UnmarshalText(data []byte) error {
+	switch ErrorResponseCode(data) {
+	case ErrorResponseCodeVEHICLENOTFOUNDINNODE:
+		*s = ErrorResponseCodeVEHICLENOTFOUNDINNODE
+		return nil
+	case ErrorResponseCodeEDGENOTFOUND:
+		*s = ErrorResponseCodeEDGENOTFOUND
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
 // MapAddEdgeBadRequest is response for MapAddEdge operation.
 type MapAddEdgeBadRequest struct{}
 
@@ -194,10 +265,10 @@ func (s *MovingGetRouteReq) SetType(val VehicleType) {
 	s.Type = val
 }
 
-// MovingNotifyArrivalBadRequest is response for MovingNotifyArrival operation.
-type MovingNotifyArrivalBadRequest struct{}
+// MovingNotifyArrivalNotFound is response for MovingNotifyArrival operation.
+type MovingNotifyArrivalNotFound struct{}
 
-func (*MovingNotifyArrivalBadRequest) movingNotifyArrivalRes() {}
+func (*MovingNotifyArrivalNotFound) movingNotifyArrivalRes() {}
 
 // MovingNotifyArrivalOK is response for MovingNotifyArrival operation.
 type MovingNotifyArrivalOK struct{}
@@ -280,11 +351,6 @@ func (s *MovingRegisterVehicleOK) SetVehicleId(val string) {
 }
 
 func (*MovingRegisterVehicleOK) movingRegisterVehicleRes() {}
-
-// MovingRequestMoveBadRequest is response for MovingRequestMove operation.
-type MovingRequestMoveBadRequest struct{}
-
-func (*MovingRequestMoveBadRequest) movingRequestMoveRes() {}
 
 // MovingRequestMoveConflict is response for MovingRequestMove operation.
 type MovingRequestMoveConflict struct{}
@@ -404,6 +470,52 @@ func (s *Node) SetTypes(val []VehicleType) {
 // SetVehicles sets the value of Vehicles.
 func (s *Node) SetVehicles(val []Vehicle) {
 	s.Vehicles = val
+}
+
+// NewOptString returns new OptString with value set to v.
+func NewOptString(v string) OptString {
+	return OptString{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptString is optional string.
+type OptString struct {
+	Value string
+	Set   bool
+}
+
+// IsSet returns true if OptString was set.
+func (o OptString) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptString) Reset() {
+	var v string
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptString) SetTo(v string) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptString) Get() (v string, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptString) Or(d string) string {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
 }
 
 // Ref: #/components/schemas/Vehicle

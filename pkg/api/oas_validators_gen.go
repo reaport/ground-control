@@ -101,6 +101,40 @@ func (s *Edge) Validate() error {
 	return nil
 }
 
+func (s *ErrorResponse) Validate() error {
+	if s == nil {
+		return validate.ErrNilPointer
+	}
+
+	var failures []validate.FieldError
+	if err := func() error {
+		if err := s.Code.Validate(); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "code",
+			Error: err,
+		})
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+	return nil
+}
+
+func (s ErrorResponseCode) Validate() error {
+	switch s {
+	case "VEHICLE_NOT_FOUND_IN_NODE":
+		return nil
+	case "EDGE_NOT_FOUND":
+		return nil
+	default:
+		return errors.Errorf("invalid value: %v", s)
+	}
+}
+
 func (s MovingGetRouteOKApplicationJSON) Validate() error {
 	alias := ([]string)(s)
 	if alias == nil {

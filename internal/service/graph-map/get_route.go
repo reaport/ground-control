@@ -2,6 +2,7 @@ package graphmap
 
 import (
 	"context"
+	"fmt"
 	"math"
 
 	"github.com/reaport/ground-control/internal/entity"
@@ -13,20 +14,25 @@ func (s *Service) GetRoute(
 	vehicleType entity.VehicleType,
 ) ([]string, error) {
 	if s.airportMap == nil {
-		return nil, entity.ErrAirportMapIsNotInitialized
+		return nil, fmt.Errorf("%w: airport map is not initialized", entity.ErrAirportMapIsNotInitialized)
 	}
 
 	if nodeIDFrom == nodeIDTo {
-		return nil, entity.ErrSameNodes
+		return nil, fmt.Errorf("%w: requested route for same nodes", entity.ErrSameNodes)
 	}
 
 	fromNode, toNode := s.findNodeByID(nodeIDFrom), s.findNodeByID(nodeIDTo)
 	if fromNode == nil || toNode == nil {
-		return nil, entity.ErrNodeNotFound
+		return nil, fmt.Errorf("%w: node not found", entity.ErrNodeNotFound)
 	}
 
 	if !toNode.IsValidType(vehicleType) {
-		return nil, entity.ErrInvalidVehicleType
+		return nil, fmt.Errorf(
+			"%w: node %s does not support vehicle type %s",
+			entity.ErrInvalidVehicleType,
+			nodeIDTo,
+			vehicleType,
+		)
 	}
 
 	distances := make(map[string]float64)
@@ -71,7 +77,7 @@ func (s *Service) GetRoute(
 		}
 	}
 
-	return nil, entity.ErrRouteNotFound
+	return nil, fmt.Errorf("%w: route not found", entity.ErrRouteNotFound)
 }
 
 func (s *Service) findNodeByID(nodeID string) *entity.Node {

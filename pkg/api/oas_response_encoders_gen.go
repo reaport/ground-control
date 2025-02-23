@@ -161,9 +161,22 @@ func encodeMovingNotifyArrivalResponse(response MovingNotifyArrivalRes, w http.R
 
 		return nil
 
-	case *MovingNotifyArrivalBadRequest:
+	case *ErrorResponse:
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(400)
 		span.SetStatus(codes.Error, http.StatusText(400))
+
+		e := new(jx.Encoder)
+		response.Encode(e)
+		if _, err := e.WriteTo(w); err != nil {
+			return errors.Wrap(err, "write")
+		}
+
+		return nil
+
+	case *MovingNotifyArrivalNotFound:
+		w.WriteHeader(404)
+		span.SetStatus(codes.Error, http.StatusText(404))
 
 		return nil
 
@@ -219,9 +232,16 @@ func encodeMovingRequestMoveResponse(response MovingRequestMoveRes, w http.Respo
 
 		return nil
 
-	case *MovingRequestMoveBadRequest:
+	case *ErrorResponse:
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(400)
 		span.SetStatus(codes.Error, http.StatusText(400))
+
+		e := new(jx.Encoder)
+		response.Encode(e)
+		if _, err := e.WriteTo(w); err != nil {
+			return errors.Wrap(err, "write")
+		}
 
 		return nil
 

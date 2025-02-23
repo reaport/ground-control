@@ -49,6 +49,13 @@ func (c *Controller) MovingRegisterVehicle(
 		return nil, err
 	}
 
+	logger.GlobalLogger.Info(
+		"vehicle registered",
+		zap.String("node_id", nodeID),
+		zap.String("vehicle_id", vehicleID),
+		zap.String("type", string(params.Type)),
+	)
+
 	return &api.MovingRegisterVehicleOK{
 		NodeId:    nodeID,
 		VehicleId: vehicleID,
