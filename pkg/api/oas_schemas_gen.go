@@ -33,15 +33,15 @@ func (s *AirplaneGetParkingSpotOK) SetNodeId(val string) {
 
 func (*AirplaneGetParkingSpotOK) airplaneGetParkingSpotRes() {}
 
-// AirplaneIDServiceTypeGetBadRequest is response for AirplaneIDServiceTypeGet operation.
-type AirplaneIDServiceTypeGetBadRequest struct{}
-
-func (*AirplaneIDServiceTypeGetBadRequest) airplaneIDServiceTypeGetRes() {}
-
 // AirplaneIDServiceTypeGetConflict is response for AirplaneIDServiceTypeGet operation.
 type AirplaneIDServiceTypeGetConflict struct{}
 
 func (*AirplaneIDServiceTypeGetConflict) airplaneIDServiceTypeGetRes() {}
+
+// AirplaneIDServiceTypeGetNotFound is response for AirplaneIDServiceTypeGet operation.
+type AirplaneIDServiceTypeGetNotFound struct{}
+
+func (*AirplaneIDServiceTypeGetNotFound) airplaneIDServiceTypeGetRes() {}
 
 type AirplaneIDServiceTypeGetOK struct {
 	// ID узла.

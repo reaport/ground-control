@@ -44,12 +44,16 @@ func (s *Service) RequestMove(
 		return 0, fmt.Errorf("%w: no edge between %s and %s", entity.ErrEdgeNotFound, nodeIDFrom, nodeIDTo)
 	}
 
-	if !s.canMoveToNode(nodeTo, vehicleType) {
+	canMove, isDuplicate := s.canMoveToNode(nodeTo, vehicleType, vehicleID)
+	if !canMove {
 		return 0, fmt.Errorf("%w: cannot move vehicle %s to node %s", entity.ErrMoveNotAllowed, vehicleID, nodeIDTo)
 	}
 
 	nodeFrom.RemoveVehicle(vehicleID)
-	nodeTo.AddVehicle(entity.NewVehicle(vehicleID, vehicleType))
+
+	if !isDuplicate {
+		nodeTo.AddVehicle(entity.NewVehicle(vehicleID, vehicleType))
+	}
 
 	return edge.Distance, nil
 }
@@ -63,18 +67,23 @@ func (s *Service) getEdge(nodeIDFrom, nodeIDTo string) *entity.Edge {
 	return nil
 }
 
-func (s *Service) canMoveToNode(node *entity.Node, vehicleType entity.VehicleType) bool {
+func (s *Service) canMoveToNode(
+	node *entity.Node,
+	vehicleType entity.VehicleType,
+	vehicleID string,
+) (canMove bool, isDuplicate bool) {
 	if len(node.Vehicles) == 0 {
-		return true
+		return true, false
 	}
 
 	existingVehicle := node.Vehicles[0]
 	switch {
-	case existingVehicle.Type == entity.VehicleTypeAirplane && vehicleType == entity.VehicleTypeFollowMe:
-		return true
-	case existingVehicle.Type == entity.VehicleTypeFollowMe && vehicleType == entity.VehicleTypeAirplane:
-		return true
+	case existingVehicle.Type == entity.VehicleTypeAirplane && vehicleType == entity.VehicleTypeFollowMe,
+		existingVehicle.Type == entity.VehicleTypeFollowMe && vehicleType == entity.VehicleTypeAirplane:
+		return true, false
+	case existingVehicle.ID == vehicleID:
+		return true, true
 	default:
-		return false
+		return false, false
 	}
 }

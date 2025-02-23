@@ -98,9 +98,9 @@ func decodeAirplaneIDServiceTypeGetResponse(resp *http.Response) (res AirplaneID
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
-	case 400:
-		// Code 400.
-		return &AirplaneIDServiceTypeGetBadRequest{}, nil
+	case 404:
+		// Code 404.
+		return &AirplaneIDServiceTypeGetNotFound{}, nil
 	case 409:
 		// Code 409.
 		return &AirplaneIDServiceTypeGetConflict{}, nil

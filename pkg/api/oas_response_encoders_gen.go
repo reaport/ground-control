@@ -58,9 +58,9 @@ func encodeAirplaneIDServiceTypeGetResponse(response AirplaneIDServiceTypeGetRes
 
 		return nil
 
-	case *AirplaneIDServiceTypeGetBadRequest:
-		w.WriteHeader(400)
-		span.SetStatus(codes.Error, http.StatusText(400))
+	case *AirplaneIDServiceTypeGetNotFound:
+		w.WriteHeader(404)
+		span.SetStatus(codes.Error, http.StatusText(404))
 
 		return nil
 

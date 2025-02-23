@@ -17,6 +17,8 @@ type MapService interface {
 		vehicleType entity.VehicleType,
 	) (float64, error)
 	NotifyArrival(ctx context.Context, nodeID string, vehicleID string) error
+	GetAirplaneParkingSpot(ctx context.Context, airplaneID string) (string, error)
+	GetAirplaneServiceSpot(ctx context.Context, airplaneID string, vehicleType entity.VehicleType) (string, error)
 }
 
 type Controller struct {

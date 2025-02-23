@@ -15,4 +15,8 @@ var (
 	ErrVehicleNotFound = errors.New("vehicle not found")
 	ErrEdgeNotFound    = errors.New("edge not found")
 	ErrMoveNotAllowed  = errors.New("move is not allowed")
+
+	ErrAirplaneParkingSpotIsFull   = errors.New("airplane parking spot is full")
+	ErrAirplaneServiceSpotIsFull   = errors.New("airplane service spot is full")
+	ErrAirplaneParkingSpotNotFound = errors.New("airplane parking spot not found")
 )
