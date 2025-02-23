@@ -7,7 +7,11 @@ import (
 	"github.com/reaport/ground-control/pkg/api"
 )
 
-// POST /arrived.
+// MovingNotifyArrival implements moving_notifyArrival operation.
+//
+// Уведомляет вышку о прибытии транспорта в узел.
+//
+// POST /arrived
 func (c *Controller) MovingNotifyArrival(
 	_ context.Context,
 	_ *api.MovingNotifyArrivalReq,

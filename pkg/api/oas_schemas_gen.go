@@ -160,6 +160,8 @@ type MovingGetRouteReq struct {
 	From string `json:"from"`
 	// ID конечного узла.
 	To string `json:"to"`
+	// Тип транспорта.
+	Type VehicleType `json:"type"`
 }
 
 // GetFrom returns the value of From.
@@ -172,6 +174,11 @@ func (s *MovingGetRouteReq) GetTo() string {
 	return s.To
 }
 
+// GetType returns the value of Type.
+func (s *MovingGetRouteReq) GetType() VehicleType {
+	return s.Type
+}
+
 // SetFrom sets the value of From.
 func (s *MovingGetRouteReq) SetFrom(val string) {
 	s.From = val
@@ -180,6 +187,11 @@ func (s *MovingGetRouteReq) SetFrom(val string) {
 // SetTo sets the value of To.
 func (s *MovingGetRouteReq) SetTo(val string) {
 	s.To = val
+}
+
+// SetType sets the value of Type.
+func (s *MovingGetRouteReq) SetType(val VehicleType) {
+	s.Type = val
 }
 
 // MovingNotifyArrivalBadRequest is response for MovingNotifyArrival operation.

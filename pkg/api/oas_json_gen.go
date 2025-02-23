@@ -536,11 +536,16 @@ func (s *MovingGetRouteReq) encodeFields(e *jx.Encoder) {
 		e.FieldStart("to")
 		e.Str(s.To)
 	}
+	{
+		e.FieldStart("type")
+		s.Type.Encode(e)
+	}
 }
 
-var jsonFieldsNameOfMovingGetRouteReq = [2]string{
+var jsonFieldsNameOfMovingGetRouteReq = [3]string{
 	0: "from",
 	1: "to",
+	2: "type",
 }
 
 // Decode decodes MovingGetRouteReq from json.
@@ -576,6 +581,16 @@ func (s *MovingGetRouteReq) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"to\"")
 			}
+		case "type":
+			requiredBitSet[0] |= 1 << 2
+			if err := func() error {
+				if err := s.Type.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"type\"")
+			}
 		default:
 			return d.Skip()
 		}
@@ -586,7 +601,7 @@ func (s *MovingGetRouteReq) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00000011,
+		0b00000111,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.

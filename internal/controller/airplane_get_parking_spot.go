@@ -7,7 +7,11 @@ import (
 	"github.com/reaport/ground-control/pkg/api"
 )
 
-// GET /airplane/{id}/parking.
+// AirplaneGetParkingSpot implements airplane_getParkingSpot operation.
+//
+// В зависимости от загрузки парковок отдает нужный узел.
+//
+// GET /airplane/{id}/parking
 func (c *Controller) AirplaneGetParkingSpot(
 	_ context.Context,
 	_ api.AirplaneGetParkingSpotParams,

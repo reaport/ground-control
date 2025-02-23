@@ -8,7 +8,11 @@ import (
 	"github.com/reaport/ground-control/pkg/api"
 )
 
-// GET /map.
+// MapGetAirportMap implements map_getAirportMap operation.
+//
+// Возвращает полную карту аэропорта в виде графа.
+//
+// GET /map
 func (c *Controller) MapGetAirportMap(ctx context.Context) (*api.AirportMap, error) {
 	airportMap, err := c.mapService.GetAirportMap(ctx)
 	if err != nil {

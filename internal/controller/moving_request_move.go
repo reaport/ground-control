@@ -7,7 +7,12 @@ import (
 	"github.com/reaport/ground-control/pkg/api"
 )
 
-// POST /move.
+// MovingRequestMove implements moving_requestMove operation.
+//
+// Запрашивает разрешение на перемещение из одного узла
+// в другой.
+//
+// POST /move
 func (c *Controller) MovingRequestMove(
 	_ context.Context,
 	_ *api.MovingRequestMoveReq,

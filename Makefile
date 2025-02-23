@@ -1,7 +1,7 @@
 LOCAL_BIN:=$(CURDIR)/bin
 PATH:=$(PATH):$(LOCAL_BIN)
 
-SPEC_VERSION := v0.0.3
+SPEC_VERSION := v0.0.4
 OGEN_VERSION := v1.10.0
 LINT_VERSION := v1.64.5
 
@@ -15,7 +15,7 @@ download-ogen:
 download-golangci-lint:
 	GOBIN=$(LOCAL_BIN) go install github.com/golangci/golangci-lint/cmd/golangci-lint@$(LINT_VERSION)
 
-generate-api: clean download-ogen
+generate-api: download-ogen
 	$(LOCAL_BIN)/ogen --package api --target $(TARGET_DIR) --clean $(SPEC_URL)
 
 clean:

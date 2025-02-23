@@ -23,8 +23,18 @@ func NewNode(id string, types []VehicleType) *Node {
 	}
 }
 
-func (node *Node) AddVehicle(vehicle *Vehicle) {
-	node.Vehicles = append(node.Vehicles, vehicle)
+func (n *Node) AddVehicle(vehicle *Vehicle) {
+	n.Vehicles = append(n.Vehicles, vehicle)
+}
+
+func (n *Node) IsValidType(vehicleType VehicleType) bool {
+	for _, t := range n.Types {
+		if t == vehicleType {
+			return true
+		}
+	}
+
+	return false
 }
 
 type Vehicle struct {

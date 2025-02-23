@@ -116,7 +116,7 @@
   ],
   "edges": [
     {
-      "from": "airstripe",
+      "from": "airstrip",
       "to": "airplane_crossroad",
       "distance": 100
     },
@@ -199,6 +199,11 @@
       "from": "airplane_parking_2",
       "to": "ramp_2",
       "distance": 50
+    },
+    {
+      "from": "garrage",
+      "to": "airplane_crossroad",
+      "distance": 300
     },
     {
       "from": "garrage",

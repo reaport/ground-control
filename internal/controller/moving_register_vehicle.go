@@ -12,7 +12,12 @@ import (
 	"go.uber.org/zap"
 )
 
-// POST /register-vehicle/{type}.
+// MovingRegisterVehicle implements moving_registerVehicle operation.
+//
+// В зависимости от типа транспорта отдает нужную
+// начальную точку и id.
+//
+// POST /register-vehicle/{type}
 func (c *Controller) MovingRegisterVehicle(
 	ctx context.Context,
 	params api.MovingRegisterVehicleParams,
