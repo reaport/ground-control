@@ -16,6 +16,7 @@ import (
 	graphmap "github.com/reaport/ground-control/internal/service/graph-map"
 	"github.com/reaport/ground-control/pkg/api"
 	"github.com/reaport/ground-control/pkg/logger"
+	"github.com/reaport/ground-control/pkg/server/middlewares"
 	"go.uber.org/zap"
 )
 
@@ -48,7 +49,7 @@ func main() {
 
 	ctrl := controller.New(service)
 
-	server, err := api.NewServer(ctrl)
+	server, err := api.NewServer(ctrl, api.WithErrorHandler(middlewares.ErrorHandler))
 	if err != nil {
 		logger.GlobalLogger.Fatal("failed to create server", zap.Error(err))
 	}
