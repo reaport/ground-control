@@ -6,13 +6,12 @@ package api
 type OperationName = string
 
 const (
-	AirplaneGetParkingSpotOperation   OperationName = "AirplaneGetParkingSpot"
-	AirplaneIDServiceTypeGetOperation OperationName = "AirplaneIDServiceTypeGet"
-	MapAddEdgeOperation               OperationName = "MapAddEdge"
-	MapAddNodeOperation               OperationName = "MapAddNode"
-	MapGetAirportMapOperation         OperationName = "MapGetAirportMap"
-	MovingGetRouteOperation           OperationName = "MovingGetRoute"
-	MovingNotifyArrivalOperation      OperationName = "MovingNotifyArrival"
-	MovingRegisterVehicleOperation    OperationName = "MovingRegisterVehicle"
-	MovingRequestMoveOperation        OperationName = "MovingRequestMove"
+	AirplaneGetParkingSpotOperation OperationName = "AirplaneGetParkingSpot"
+	MapGetAirportMapOperation       OperationName = "MapGetAirportMap"
+	MapRefreshAirportMapOperation   OperationName = "MapRefreshAirportMap"
+	MapUpdateAirportMapOperation    OperationName = "MapUpdateAirportMap"
+	MovingGetRouteOperation         OperationName = "MovingGetRoute"
+	MovingNotifyArrivalOperation    OperationName = "MovingNotifyArrival"
+	MovingRegisterVehicleOperation  OperationName = "MovingRegisterVehicle"
+	MovingRequestMoveOperation      OperationName = "MovingRequestMove"
 )

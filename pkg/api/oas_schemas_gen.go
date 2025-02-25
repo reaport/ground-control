@@ -33,33 +33,6 @@ func (s *AirplaneGetParkingSpotOK) SetNodeId(val string) {
 
 func (*AirplaneGetParkingSpotOK) airplaneGetParkingSpotRes() {}
 
-// AirplaneIDServiceTypeGetConflict is response for AirplaneIDServiceTypeGet operation.
-type AirplaneIDServiceTypeGetConflict struct{}
-
-func (*AirplaneIDServiceTypeGetConflict) airplaneIDServiceTypeGetRes() {}
-
-// AirplaneIDServiceTypeGetNotFound is response for AirplaneIDServiceTypeGet operation.
-type AirplaneIDServiceTypeGetNotFound struct{}
-
-func (*AirplaneIDServiceTypeGetNotFound) airplaneIDServiceTypeGetRes() {}
-
-type AirplaneIDServiceTypeGetOK struct {
-	// ID узла.
-	NodeId string `json:"nodeId"`
-}
-
-// GetNodeId returns the value of NodeId.
-func (s *AirplaneIDServiceTypeGetOK) GetNodeId() string {
-	return s.NodeId
-}
-
-// SetNodeId sets the value of NodeId.
-func (s *AirplaneIDServiceTypeGetOK) SetNodeId(val string) {
-	s.NodeId = val
-}
-
-func (*AirplaneIDServiceTypeGetOK) airplaneIDServiceTypeGetRes() {}
-
 // Ref: #/components/schemas/AirportMap
 type AirportMap struct {
 	Nodes []Node `json:"nodes"`
@@ -153,6 +126,7 @@ func (s *ErrorResponse) SetMessage(val OptString) {
 	s.Message = val
 }
 
+func (*ErrorResponse) mapUpdateAirportMapRes() {}
 func (*ErrorResponse) movingNotifyArrivalRes() {}
 func (*ErrorResponse) movingRequestMoveRes()   {}
 
@@ -161,6 +135,7 @@ type ErrorResponseCode string
 const (
 	ErrorResponseCodeVEHICLENOTFOUNDINNODE ErrorResponseCode = "VEHICLE_NOT_FOUND_IN_NODE"
 	ErrorResponseCodeEDGENOTFOUND          ErrorResponseCode = "EDGE_NOT_FOUND"
+	ErrorResponseCodeMAPHASVEHICLES        ErrorResponseCode = "MAP_HAS_VEHICLES"
 )
 
 // AllValues returns all ErrorResponseCode values.
@@ -168,6 +143,7 @@ func (ErrorResponseCode) AllValues() []ErrorResponseCode {
 	return []ErrorResponseCode{
 		ErrorResponseCodeVEHICLENOTFOUNDINNODE,
 		ErrorResponseCodeEDGENOTFOUND,
+		ErrorResponseCodeMAPHASVEHICLES,
 	}
 }
 
@@ -177,6 +153,8 @@ func (s ErrorResponseCode) MarshalText() ([]byte, error) {
 	case ErrorResponseCodeVEHICLENOTFOUNDINNODE:
 		return []byte(s), nil
 	case ErrorResponseCodeEDGENOTFOUND:
+		return []byte(s), nil
+	case ErrorResponseCodeMAPHASVEHICLES:
 		return []byte(s), nil
 	default:
 		return nil, errors.Errorf("invalid value: %q", s)
@@ -192,30 +170,21 @@ func (s *ErrorResponseCode) UnmarshalText(data []byte) error {
 	case ErrorResponseCodeEDGENOTFOUND:
 		*s = ErrorResponseCodeEDGENOTFOUND
 		return nil
+	case ErrorResponseCodeMAPHASVEHICLES:
+		*s = ErrorResponseCodeMAPHASVEHICLES
+		return nil
 	default:
 		return errors.Errorf("invalid value: %q", data)
 	}
 }
 
-// MapAddEdgeBadRequest is response for MapAddEdge operation.
-type MapAddEdgeBadRequest struct{}
+// MapRefreshAirportMapOK is response for MapRefreshAirportMap operation.
+type MapRefreshAirportMapOK struct{}
 
-func (*MapAddEdgeBadRequest) mapAddEdgeRes() {}
+// MapUpdateAirportMapOK is response for MapUpdateAirportMap operation.
+type MapUpdateAirportMapOK struct{}
 
-// MapAddEdgeCreated is response for MapAddEdge operation.
-type MapAddEdgeCreated struct{}
-
-func (*MapAddEdgeCreated) mapAddEdgeRes() {}
-
-// MapAddNodeBadRequest is response for MapAddNode operation.
-type MapAddNodeBadRequest struct{}
-
-func (*MapAddNodeBadRequest) mapAddNodeRes() {}
-
-// MapAddNodeCreated is response for MapAddNode operation.
-type MapAddNodeCreated struct{}
-
-func (*MapAddNodeCreated) mapAddNodeRes() {}
+func (*MapUpdateAirportMapOK) mapUpdateAirportMapRes() {}
 
 // MovingGetRouteNotFound is response for MovingGetRoute operation.
 type MovingGetRouteNotFound struct{}
@@ -325,14 +294,17 @@ func (*MovingRegisterVehicleConflict) movingRegisterVehicleRes() {}
 
 type MovingRegisterVehicleOK struct {
 	// ID узла.
-	NodeId string `json:"nodeId"`
+	GarrageNodeId string `json:"garrageNodeId"`
 	// ID транспорта.
 	VehicleId string `json:"vehicleId"`
+	// Id узлов парковочных мест для обслуживания самолетов
+	// (парковка\_самолета:парковка\_сервисной\_машинки).
+	ServiceSpots MovingRegisterVehicleOKServiceSpots `json:"serviceSpots"`
 }
 
-// GetNodeId returns the value of NodeId.
-func (s *MovingRegisterVehicleOK) GetNodeId() string {
-	return s.NodeId
+// GetGarrageNodeId returns the value of GarrageNodeId.
+func (s *MovingRegisterVehicleOK) GetGarrageNodeId() string {
+	return s.GarrageNodeId
 }
 
 // GetVehicleId returns the value of VehicleId.
@@ -340,9 +312,14 @@ func (s *MovingRegisterVehicleOK) GetVehicleId() string {
 	return s.VehicleId
 }
 
-// SetNodeId sets the value of NodeId.
-func (s *MovingRegisterVehicleOK) SetNodeId(val string) {
-	s.NodeId = val
+// GetServiceSpots returns the value of ServiceSpots.
+func (s *MovingRegisterVehicleOK) GetServiceSpots() MovingRegisterVehicleOKServiceSpots {
+	return s.ServiceSpots
+}
+
+// SetGarrageNodeId sets the value of GarrageNodeId.
+func (s *MovingRegisterVehicleOK) SetGarrageNodeId(val string) {
+	s.GarrageNodeId = val
 }
 
 // SetVehicleId sets the value of VehicleId.
@@ -350,7 +327,25 @@ func (s *MovingRegisterVehicleOK) SetVehicleId(val string) {
 	s.VehicleId = val
 }
 
+// SetServiceSpots sets the value of ServiceSpots.
+func (s *MovingRegisterVehicleOK) SetServiceSpots(val MovingRegisterVehicleOKServiceSpots) {
+	s.ServiceSpots = val
+}
+
 func (*MovingRegisterVehicleOK) movingRegisterVehicleRes() {}
+
+// Id узлов парковочных мест для обслуживания самолетов
+// (парковка\_самолета:парковка\_сервисной\_машинки).
+type MovingRegisterVehicleOKServiceSpots map[string]string
+
+func (s *MovingRegisterVehicleOKServiceSpots) init() MovingRegisterVehicleOKServiceSpots {
+	m := *s
+	if m == nil {
+		m = map[string]string{}
+		*s = m
+	}
+	return m
+}
 
 // MovingRequestMoveConflict is response for MovingRequestMove operation.
 type MovingRequestMoveConflict struct{}

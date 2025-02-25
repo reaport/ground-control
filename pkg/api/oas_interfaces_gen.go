@@ -5,16 +5,8 @@ type AirplaneGetParkingSpotRes interface {
 	airplaneGetParkingSpotRes()
 }
 
-type AirplaneIDServiceTypeGetRes interface {
-	airplaneIDServiceTypeGetRes()
-}
-
-type MapAddEdgeRes interface {
-	mapAddEdgeRes()
-}
-
-type MapAddNodeRes interface {
-	mapAddNodeRes()
+type MapUpdateAirportMapRes interface {
+	mapUpdateAirportMapRes()
 }
 
 type MovingGetRouteRes interface {

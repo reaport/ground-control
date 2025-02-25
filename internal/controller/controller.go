@@ -8,7 +8,10 @@ import (
 
 type MapService interface {
 	GetAirportMap(ctx context.Context) (*entity.AirportMap, error)
-	RegisterVehicle(ctx context.Context, vehicleType entity.VehicleType) (nodeID string, vehicleID string, err error)
+	RefreshAirportMap(ctx context.Context) error
+	UpdateAirportMap(_ context.Context, airportMap *entity.AirportMap) error
+
+	RegisterVehicle(ctx context.Context, vehicleType entity.VehicleType) (*entity.VehicleInitInfo, error)
 	GetRoute(ctx context.Context, nodeIDFrom, nodeIDTo string, vehicleType entity.VehicleType) ([]string, error)
 	RequestMove(
 		ctx context.Context,
@@ -17,8 +20,8 @@ type MapService interface {
 		vehicleType entity.VehicleType,
 	) (float64, error)
 	NotifyArrival(ctx context.Context, nodeID string, vehicleID string) error
+
 	GetAirplaneParkingSpot(ctx context.Context, airplaneID string) (string, error)
-	GetAirplaneServiceSpot(ctx context.Context, airplaneID string, vehicleType entity.VehicleType) (string, error)
 }
 
 type Controller struct {

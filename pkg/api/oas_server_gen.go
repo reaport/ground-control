@@ -14,32 +14,24 @@ type Handler interface {
 	//
 	// GET /airplane/{id}/parking
 	AirplaneGetParkingSpot(ctx context.Context, params AirplaneGetParkingSpotParams) (AirplaneGetParkingSpotRes, error)
-	// AirplaneIDServiceTypeGet implements GET /airplane/{id}/service/{type} operation.
-	//
-	// В зависимости от типа транспорта отдает нужный узел
-	// для парковки.
-	//
-	// GET /airplane/{id}/service/{type}
-	AirplaneIDServiceTypeGet(ctx context.Context, params AirplaneIDServiceTypeGetParams) (AirplaneIDServiceTypeGetRes, error)
-	// MapAddEdge implements map_addEdge operation.
-	//
-	// Добавляет новое ребро между узлами на карте
-	// аэропорта.
-	//
-	// POST /map/edges
-	MapAddEdge(ctx context.Context, req *Edge) (MapAddEdgeRes, error)
-	// MapAddNode implements map_addNode operation.
-	//
-	// Добавляет новый узел на карту аэропорта.
-	//
-	// POST /map/nodes
-	MapAddNode(ctx context.Context, req *Node) (MapAddNodeRes, error)
 	// MapGetAirportMap implements map_getAirportMap operation.
 	//
 	// Возвращает полную карту аэропорта в виде графа.
 	//
 	// GET /map
 	MapGetAirportMap(ctx context.Context) (*AirportMap, error)
+	// MapRefreshAirportMap implements map_refreshAirportMap operation.
+	//
+	// Возвращает карту к исходному состоянию.
+	//
+	// POST /map/refresh
+	MapRefreshAirportMap(ctx context.Context) error
+	// MapUpdateAirportMap implements map_updateAirportMap operation.
+	//
+	// Обновляет карту аэропорта.
+	//
+	// PUT /map
+	MapUpdateAirportMap(ctx context.Context, req *AirportMap) (MapUpdateAirportMapRes, error)
 	// MovingGetRoute implements moving_getRoute operation.
 	//
 	// Запрашивает маршрут из точки А в точку Б.

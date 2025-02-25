@@ -43,76 +43,6 @@ func encodeAirplaneGetParkingSpotResponse(response AirplaneGetParkingSpotRes, w 
 	}
 }
 
-func encodeAirplaneIDServiceTypeGetResponse(response AirplaneIDServiceTypeGetRes, w http.ResponseWriter, span trace.Span) error {
-	switch response := response.(type) {
-	case *AirplaneIDServiceTypeGetOK:
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		w.WriteHeader(200)
-		span.SetStatus(codes.Ok, http.StatusText(200))
-
-		e := new(jx.Encoder)
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-
-		return nil
-
-	case *AirplaneIDServiceTypeGetNotFound:
-		w.WriteHeader(404)
-		span.SetStatus(codes.Error, http.StatusText(404))
-
-		return nil
-
-	case *AirplaneIDServiceTypeGetConflict:
-		w.WriteHeader(409)
-		span.SetStatus(codes.Error, http.StatusText(409))
-
-		return nil
-
-	default:
-		return errors.Errorf("unexpected response type: %T", response)
-	}
-}
-
-func encodeMapAddEdgeResponse(response MapAddEdgeRes, w http.ResponseWriter, span trace.Span) error {
-	switch response := response.(type) {
-	case *MapAddEdgeCreated:
-		w.WriteHeader(201)
-		span.SetStatus(codes.Ok, http.StatusText(201))
-
-		return nil
-
-	case *MapAddEdgeBadRequest:
-		w.WriteHeader(400)
-		span.SetStatus(codes.Error, http.StatusText(400))
-
-		return nil
-
-	default:
-		return errors.Errorf("unexpected response type: %T", response)
-	}
-}
-
-func encodeMapAddNodeResponse(response MapAddNodeRes, w http.ResponseWriter, span trace.Span) error {
-	switch response := response.(type) {
-	case *MapAddNodeCreated:
-		w.WriteHeader(201)
-		span.SetStatus(codes.Ok, http.StatusText(201))
-
-		return nil
-
-	case *MapAddNodeBadRequest:
-		w.WriteHeader(400)
-		span.SetStatus(codes.Error, http.StatusText(400))
-
-		return nil
-
-	default:
-		return errors.Errorf("unexpected response type: %T", response)
-	}
-}
-
 func encodeMapGetAirportMapResponse(response *AirportMap, w http.ResponseWriter, span trace.Span) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
@@ -125,6 +55,39 @@ func encodeMapGetAirportMapResponse(response *AirportMap, w http.ResponseWriter,
 	}
 
 	return nil
+}
+
+func encodeMapRefreshAirportMapResponse(response *MapRefreshAirportMapOK, w http.ResponseWriter, span trace.Span) error {
+	w.WriteHeader(200)
+	span.SetStatus(codes.Ok, http.StatusText(200))
+
+	return nil
+}
+
+func encodeMapUpdateAirportMapResponse(response MapUpdateAirportMapRes, w http.ResponseWriter, span trace.Span) error {
+	switch response := response.(type) {
+	case *MapUpdateAirportMapOK:
+		w.WriteHeader(200)
+		span.SetStatus(codes.Ok, http.StatusText(200))
+
+		return nil
+
+	case *ErrorResponse:
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.WriteHeader(400)
+		span.SetStatus(codes.Error, http.StatusText(400))
+
+		e := new(jx.Encoder)
+		response.Encode(e)
+		if _, err := e.WriteTo(w); err != nil {
+			return errors.Wrap(err, "write")
+		}
+
+		return nil
+
+	default:
+		return errors.Errorf("unexpected response type: %T", response)
+	}
 }
 
 func encodeMovingGetRouteResponse(response MovingGetRouteRes, w http.ResponseWriter, span trace.Span) error {

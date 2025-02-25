@@ -19,4 +19,7 @@ var (
 	ErrAirplaneParkingSpotIsFull   = errors.New("airplane parking spot is full")
 	ErrAirplaneServiceSpotIsFull   = errors.New("airplane service spot is full")
 	ErrAirplaneParkingSpotNotFound = errors.New("airplane parking spot not found")
+	ErrServiceCrossroadNotFound    = errors.New("service crossroad not found")
+
+	ErrMapHasVehicles = errors.New("map has vehicles")
 )

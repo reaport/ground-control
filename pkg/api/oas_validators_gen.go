@@ -130,6 +130,8 @@ func (s ErrorResponseCode) Validate() error {
 		return nil
 	case "EDGE_NOT_FOUND":
 		return nil
+	case "MAP_HAS_VEHICLES":
+		return nil
 	default:
 		return errors.Errorf("invalid value: %v", s)
 	}

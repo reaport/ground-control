@@ -7,9 +7,4 @@ server:
   read_header_timeout: 5
 
 map:
-  airstrip: airstrip
-  airport: airport
-  garrage: garrage
-  airplane_parkings:
-    - airplane_parking_1
-    - airplane_parking_2
+  path: "map.json"

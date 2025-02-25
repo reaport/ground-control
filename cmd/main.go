@@ -26,7 +26,6 @@ const (
 
 func main() {
 	configPath := flag.String("config", "config.yaml", "config path")
-	initMapPath := flag.String("init-data", "init_data.json", "init map path")
 	flag.Parse()
 
 	cfg, err := config.LoadConfig(*configPath)
@@ -42,7 +41,7 @@ func main() {
 		_ = logger.GlobalLogger.Sync()
 	}()
 
-	service, err := graphmap.New(*initMapPath)
+	service, err := graphmap.New(cfg.Map)
 	if err != nil {
 		logger.GlobalLogger.Fatal("failed to initialize graph map service", zap.Error(err))
 	}

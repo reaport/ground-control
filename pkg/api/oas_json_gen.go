@@ -109,102 +109,6 @@ func (s *AirplaneGetParkingSpotOK) UnmarshalJSON(data []byte) error {
 }
 
 // Encode implements json.Marshaler.
-func (s *AirplaneIDServiceTypeGetOK) Encode(e *jx.Encoder) {
-	e.ObjStart()
-	s.encodeFields(e)
-	e.ObjEnd()
-}
-
-// encodeFields encodes fields.
-func (s *AirplaneIDServiceTypeGetOK) encodeFields(e *jx.Encoder) {
-	{
-		e.FieldStart("nodeId")
-		e.Str(s.NodeId)
-	}
-}
-
-var jsonFieldsNameOfAirplaneIDServiceTypeGetOK = [1]string{
-	0: "nodeId",
-}
-
-// Decode decodes AirplaneIDServiceTypeGetOK from json.
-func (s *AirplaneIDServiceTypeGetOK) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode AirplaneIDServiceTypeGetOK to nil")
-	}
-	var requiredBitSet [1]uint8
-
-	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
-		switch string(k) {
-		case "nodeId":
-			requiredBitSet[0] |= 1 << 0
-			if err := func() error {
-				v, err := d.Str()
-				s.NodeId = string(v)
-				if err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"nodeId\"")
-			}
-		default:
-			return d.Skip()
-		}
-		return nil
-	}); err != nil {
-		return errors.Wrap(err, "decode AirplaneIDServiceTypeGetOK")
-	}
-	// Validate required fields.
-	var failures []validate.FieldError
-	for i, mask := range [1]uint8{
-		0b00000001,
-	} {
-		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
-			// Mask only required fields and check equality to mask using XOR.
-			//
-			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
-			// Bits of fields which would be set are actually bits of missed fields.
-			missed := bits.OnesCount8(result)
-			for bitN := 0; bitN < missed; bitN++ {
-				bitIdx := bits.TrailingZeros8(result)
-				fieldIdx := i*8 + bitIdx
-				var name string
-				if fieldIdx < len(jsonFieldsNameOfAirplaneIDServiceTypeGetOK) {
-					name = jsonFieldsNameOfAirplaneIDServiceTypeGetOK[fieldIdx]
-				} else {
-					name = strconv.Itoa(fieldIdx)
-				}
-				failures = append(failures, validate.FieldError{
-					Name:  name,
-					Error: validate.ErrFieldRequired,
-				})
-				// Reset bit.
-				result &^= 1 << bitIdx
-			}
-		}
-	}
-	if len(failures) > 0 {
-		return &validate.Error{Fields: failures}
-	}
-
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *AirplaneIDServiceTypeGetOK) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *AirplaneIDServiceTypeGetOK) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode implements json.Marshaler.
 func (s *AirportMap) Encode(e *jx.Encoder) {
 	e.ObjStart()
 	s.encodeFields(e)
@@ -598,6 +502,8 @@ func (s *ErrorResponseCode) Decode(d *jx.Decoder) error {
 		*s = ErrorResponseCodeVEHICLENOTFOUNDINNODE
 	case ErrorResponseCodeEDGENOTFOUND:
 		*s = ErrorResponseCodeEDGENOTFOUND
+	case ErrorResponseCodeMAPHASVEHICLES:
+		*s = ErrorResponseCodeMAPHASVEHICLES
 	default:
 		*s = ErrorResponseCode(v)
 	}
@@ -936,18 +842,23 @@ func (s *MovingRegisterVehicleOK) Encode(e *jx.Encoder) {
 // encodeFields encodes fields.
 func (s *MovingRegisterVehicleOK) encodeFields(e *jx.Encoder) {
 	{
-		e.FieldStart("nodeId")
-		e.Str(s.NodeId)
+		e.FieldStart("garrageNodeId")
+		e.Str(s.GarrageNodeId)
 	}
 	{
 		e.FieldStart("vehicleId")
 		e.Str(s.VehicleId)
 	}
+	{
+		e.FieldStart("serviceSpots")
+		s.ServiceSpots.Encode(e)
+	}
 }
 
-var jsonFieldsNameOfMovingRegisterVehicleOK = [2]string{
-	0: "nodeId",
+var jsonFieldsNameOfMovingRegisterVehicleOK = [3]string{
+	0: "garrageNodeId",
 	1: "vehicleId",
+	2: "serviceSpots",
 }
 
 // Decode decodes MovingRegisterVehicleOK from json.
@@ -959,17 +870,17 @@ func (s *MovingRegisterVehicleOK) Decode(d *jx.Decoder) error {
 
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
 		switch string(k) {
-		case "nodeId":
+		case "garrageNodeId":
 			requiredBitSet[0] |= 1 << 0
 			if err := func() error {
 				v, err := d.Str()
-				s.NodeId = string(v)
+				s.GarrageNodeId = string(v)
 				if err != nil {
 					return err
 				}
 				return nil
 			}(); err != nil {
-				return errors.Wrap(err, "decode field \"nodeId\"")
+				return errors.Wrap(err, "decode field \"garrageNodeId\"")
 			}
 		case "vehicleId":
 			requiredBitSet[0] |= 1 << 1
@@ -983,6 +894,16 @@ func (s *MovingRegisterVehicleOK) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"vehicleId\"")
 			}
+		case "serviceSpots":
+			requiredBitSet[0] |= 1 << 2
+			if err := func() error {
+				if err := s.ServiceSpots.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"serviceSpots\"")
+			}
 		default:
 			return d.Skip()
 		}
@@ -993,7 +914,7 @@ func (s *MovingRegisterVehicleOK) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00000011,
+		0b00000111,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -1035,6 +956,62 @@ func (s *MovingRegisterVehicleOK) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *MovingRegisterVehicleOK) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s MovingRegisterVehicleOKServiceSpots) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields implements json.Marshaler.
+func (s MovingRegisterVehicleOKServiceSpots) encodeFields(e *jx.Encoder) {
+	for k, elem := range s {
+		e.FieldStart(k)
+
+		e.Str(elem)
+	}
+}
+
+// Decode decodes MovingRegisterVehicleOKServiceSpots from json.
+func (s *MovingRegisterVehicleOKServiceSpots) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode MovingRegisterVehicleOKServiceSpots to nil")
+	}
+	m := s.init()
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		var elem string
+		if err := func() error {
+			v, err := d.Str()
+			elem = string(v)
+			if err != nil {
+				return err
+			}
+			return nil
+		}(); err != nil {
+			return errors.Wrapf(err, "decode field %q", k)
+		}
+		m[string(k)] = elem
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode MovingRegisterVehicleOKServiceSpots")
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s MovingRegisterVehicleOKServiceSpots) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *MovingRegisterVehicleOKServiceSpots) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }

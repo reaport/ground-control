@@ -25,6 +25,8 @@ func (c *Controller) MovingGetRoute(ctx context.Context, req *api.MovingGetRoute
 			"failed to convert vehicle type from API",
 			zap.Error(err),
 			zap.String("type", string(req.Type)),
+			zap.String("from", req.From),
+			zap.String("to", req.To),
 		)
 		return nil, err
 	}

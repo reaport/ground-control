@@ -22,41 +22,30 @@ func (UnimplementedHandler) AirplaneGetParkingSpot(ctx context.Context, params A
 	return r, ht.ErrNotImplemented
 }
 
-// AirplaneIDServiceTypeGet implements GET /airplane/{id}/service/{type} operation.
-//
-// В зависимости от типа транспорта отдает нужный узел
-// для парковки.
-//
-// GET /airplane/{id}/service/{type}
-func (UnimplementedHandler) AirplaneIDServiceTypeGet(ctx context.Context, params AirplaneIDServiceTypeGetParams) (r AirplaneIDServiceTypeGetRes, _ error) {
-	return r, ht.ErrNotImplemented
-}
-
-// MapAddEdge implements map_addEdge operation.
-//
-// Добавляет новое ребро между узлами на карте
-// аэропорта.
-//
-// POST /map/edges
-func (UnimplementedHandler) MapAddEdge(ctx context.Context, req *Edge) (r MapAddEdgeRes, _ error) {
-	return r, ht.ErrNotImplemented
-}
-
-// MapAddNode implements map_addNode operation.
-//
-// Добавляет новый узел на карту аэропорта.
-//
-// POST /map/nodes
-func (UnimplementedHandler) MapAddNode(ctx context.Context, req *Node) (r MapAddNodeRes, _ error) {
-	return r, ht.ErrNotImplemented
-}
-
 // MapGetAirportMap implements map_getAirportMap operation.
 //
 // Возвращает полную карту аэропорта в виде графа.
 //
 // GET /map
 func (UnimplementedHandler) MapGetAirportMap(ctx context.Context) (r *AirportMap, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// MapRefreshAirportMap implements map_refreshAirportMap operation.
+//
+// Возвращает карту к исходному состоянию.
+//
+// POST /map/refresh
+func (UnimplementedHandler) MapRefreshAirportMap(ctx context.Context) error {
+	return ht.ErrNotImplemented
+}
+
+// MapUpdateAirportMap implements map_updateAirportMap operation.
+//
+// Обновляет карту аэропорта.
+//
+// PUT /map
+func (UnimplementedHandler) MapUpdateAirportMap(ctx context.Context, req *AirportMap) (r MapUpdateAirportMapRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 

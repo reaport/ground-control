@@ -21,6 +21,20 @@ func AirportMapToAPI(airportMap *entity.AirportMap) (*api.AirportMap, error) {
 	}, nil
 }
 
+func AirportMapFromAPI(airportMap *api.AirportMap) (*entity.AirportMap, error) {
+	nodes, err := NodesFromAPI(airportMap.Nodes)
+	if err != nil {
+		return nil, fmt.Errorf("NodesFromAPI: %w", err)
+	}
+
+	edges := EdgesFromAPI(airportMap.Edges)
+
+	return &entity.AirportMap{
+		Nodes: nodes,
+		Edges: edges,
+	}, nil
+}
+
 func NodesToAPI(nodes []*entity.Node) ([]api.Node, error) {
 	apiNodes := make([]api.Node, len(nodes))
 	for i, node := range nodes {
@@ -32,6 +46,19 @@ func NodesToAPI(nodes []*entity.Node) ([]api.Node, error) {
 	}
 
 	return apiNodes, nil
+}
+
+func NodesFromAPI(apiNodes []api.Node) ([]*entity.Node, error) {
+	nodes := make([]*entity.Node, len(apiNodes))
+	for i, apiNode := range apiNodes {
+		node, err := NodeFromAPI(apiNode)
+		if err != nil {
+			return nil, fmt.Errorf("NodeFromAPI: %w", err)
+		}
+		nodes[i] = node
+	}
+
+	return nodes, nil
 }
 
 func NodeToAPI(node *entity.Node) (api.Node, error) {
@@ -52,6 +79,24 @@ func NodeToAPI(node *entity.Node) (api.Node, error) {
 	}, nil
 }
 
+func NodeFromAPI(apiNode api.Node) (*entity.Node, error) {
+	vehicleTypes, err := VehicleTypesFromAPI(apiNode.Types)
+	if err != nil {
+		return nil, fmt.Errorf("VehicleTypesFromAPI: %w", err)
+	}
+
+	vehicles, err := VehiclesFromAPI(apiNode.Vehicles)
+	if err != nil {
+		return nil, fmt.Errorf("VehiclesFromAPI: %w", err)
+	}
+
+	return &entity.Node{
+		ID:       apiNode.ID,
+		Types:    vehicleTypes,
+		Vehicles: vehicles,
+	}, nil
+}
+
 func VehicleTypesToAPI(vehicleTypes []entity.VehicleType) ([]api.VehicleType, error) {
 	apiVehicleTypes := make([]api.VehicleType, len(vehicleTypes))
 	for i, vehicleType := range vehicleTypes {
@@ -63,6 +108,19 @@ func VehicleTypesToAPI(vehicleTypes []entity.VehicleType) ([]api.VehicleType, er
 	}
 
 	return apiVehicleTypes, nil
+}
+
+func VehicleTypesFromAPI(apiVehicleTypes []api.VehicleType) ([]entity.VehicleType, error) {
+	vehicleTypes := make([]entity.VehicleType, len(apiVehicleTypes))
+	for i, apiVehicleType := range apiVehicleTypes {
+		vehicleType, err := VehicleTypeFromAPI(apiVehicleType)
+		if err != nil {
+			return nil, fmt.Errorf("VehicleTypeFromAPI: %w", err)
+		}
+		vehicleTypes[i] = vehicleType
+	}
+
+	return vehicleTypes, nil
 }
 
 func VehicleTypeToAPI(vehicleType entity.VehicleType) (api.VehicleType, error) {
@@ -103,11 +161,28 @@ func EdgesToAPI(edges []*entity.Edge) []api.Edge {
 	return apiEdges
 }
 
+func EdgesFromAPI(apiEdges []api.Edge) []*entity.Edge {
+	edges := make([]*entity.Edge, len(apiEdges))
+	for i, apiEdge := range apiEdges {
+		edges[i] = EdgeFromAPI(apiEdge)
+	}
+
+	return edges
+}
+
 func EdgeToAPI(edge *entity.Edge) api.Edge {
 	return api.Edge{
 		From:     edge.From,
 		To:       edge.To,
 		Distance: edge.Distance,
+	}
+}
+
+func EdgeFromAPI(apiEdge api.Edge) *entity.Edge {
+	return &entity.Edge{
+		From:     apiEdge.From,
+		To:       apiEdge.To,
+		Distance: apiEdge.Distance,
 	}
 }
 
@@ -124,6 +199,19 @@ func VehiclesToAPI(vehicles []*entity.Vehicle) ([]api.Vehicle, error) {
 	return apiVehicles, nil
 }
 
+func VehiclesFromAPI(apiVehicles []api.Vehicle) ([]*entity.Vehicle, error) {
+	vehicles := make([]*entity.Vehicle, len(apiVehicles))
+	for i, apiVehicle := range apiVehicles {
+		vehicle, err := VehicleFromAPI(apiVehicle)
+		if err != nil {
+			return nil, fmt.Errorf("VehicleFromAPI: %w", err)
+		}
+		vehicles[i] = vehicle
+	}
+
+	return vehicles, nil
+}
+
 func VehicleToAPI(vehicle *entity.Vehicle) (api.Vehicle, error) {
 	vehicleType, err := VehicleTypeToAPI(vehicle.Type)
 	if err != nil {
@@ -132,6 +220,18 @@ func VehicleToAPI(vehicle *entity.Vehicle) (api.Vehicle, error) {
 
 	return api.Vehicle{
 		ID:   vehicle.ID,
+		Type: vehicleType,
+	}, nil
+}
+
+func VehicleFromAPI(apiVehicle api.Vehicle) (*entity.Vehicle, error) {
+	vehicleType, err := VehicleTypeFromAPI(apiVehicle.Type)
+	if err != nil {
+		return nil, fmt.Errorf("VehicleTypeFromAPI: %w", err)
+	}
+
+	return &entity.Vehicle{
+		ID:   apiVehicle.ID,
 		Type: vehicleType,
 	}, nil
 }
@@ -162,5 +262,13 @@ func VehicleTypeFromAPI(vehicleType api.VehicleType) (entity.VehicleType, error)
 		return entity.VehicleTypeRamp, nil
 	default:
 		return "", ErrInvalidVehicleType
+	}
+}
+
+func VehicleInitInfoToAPI(vehicleInitInfo *entity.VehicleInitInfo) *api.MovingRegisterVehicleOK {
+	return &api.MovingRegisterVehicleOK{
+		GarrageNodeId: vehicleInitInfo.GarrageNodeID,
+		VehicleId:     vehicleInitInfo.VehicleID,
+		ServiceSpots:  vehicleInitInfo.ServiceSpots,
 	}
 }

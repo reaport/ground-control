@@ -1,15 +1,15 @@
 package graphmap
 
 import (
-	"encoding/json"
 	"fmt"
-	"os"
 	"sync"
 
 	"github.com/reaport/ground-control/internal/entity"
 )
 
 type Service struct {
+	mapFilePath string
+
 	airportMap *entity.AirportMap
 	mapMutex   *sync.RWMutex
 
@@ -17,22 +17,18 @@ type Service struct {
 	vehicleSequenceMutex *sync.RWMutex
 }
 
-func New(initDataFilePath string) (*Service, error) {
-	initDataFile, err := os.Open(initDataFilePath)
-	if err != nil {
-		return nil, fmt.Errorf("os.Open: %w", err)
-	}
-
-	var initData entity.AirportMap
-	err = json.NewDecoder(initDataFile).Decode(&initData)
-	if err != nil {
-		return nil, fmt.Errorf("json.NewDecoder.Decode: %w", err)
-	}
-
-	return &Service{
-		airportMap:           &initData,
+func New(cfg *Config) (*Service, error) {
+	service := &Service{
+		mapFilePath:          cfg.MapFilePath,
 		mapMutex:             &sync.RWMutex{},
 		vehicleSequenceMap:   map[entity.VehicleType]int{},
 		vehicleSequenceMutex: &sync.RWMutex{},
-	}, nil
+	}
+
+	err := service.loadInitData()
+	if err != nil {
+		return nil, fmt.Errorf("loadInitData: %w", err)
+	}
+
+	return service, nil
 }

@@ -61,77 +61,6 @@ func decodeAirplaneGetParkingSpotResponse(resp *http.Response) (res AirplaneGetP
 	return res, validate.UnexpectedStatusCode(resp.StatusCode)
 }
 
-func decodeAirplaneIDServiceTypeGetResponse(resp *http.Response) (res AirplaneIDServiceTypeGetRes, _ error) {
-	switch resp.StatusCode {
-	case 200:
-		// Code 200.
-		ct, _, err := mime.ParseMediaType(resp.Header.Get("Content-Type"))
-		if err != nil {
-			return res, errors.Wrap(err, "parse media type")
-		}
-		switch {
-		case ct == "application/json":
-			buf, err := io.ReadAll(resp.Body)
-			if err != nil {
-				return res, err
-			}
-			d := jx.DecodeBytes(buf)
-
-			var response AirplaneIDServiceTypeGetOK
-			if err := func() error {
-				if err := response.Decode(d); err != nil {
-					return err
-				}
-				if err := d.Skip(); err != io.EOF {
-					return errors.New("unexpected trailing data")
-				}
-				return nil
-			}(); err != nil {
-				err = &ogenerrors.DecodeBodyError{
-					ContentType: ct,
-					Body:        buf,
-					Err:         err,
-				}
-				return res, err
-			}
-			return &response, nil
-		default:
-			return res, validate.InvalidContentType(ct)
-		}
-	case 404:
-		// Code 404.
-		return &AirplaneIDServiceTypeGetNotFound{}, nil
-	case 409:
-		// Code 409.
-		return &AirplaneIDServiceTypeGetConflict{}, nil
-	}
-	return res, validate.UnexpectedStatusCode(resp.StatusCode)
-}
-
-func decodeMapAddEdgeResponse(resp *http.Response) (res MapAddEdgeRes, _ error) {
-	switch resp.StatusCode {
-	case 201:
-		// Code 201.
-		return &MapAddEdgeCreated{}, nil
-	case 400:
-		// Code 400.
-		return &MapAddEdgeBadRequest{}, nil
-	}
-	return res, validate.UnexpectedStatusCode(resp.StatusCode)
-}
-
-func decodeMapAddNodeResponse(resp *http.Response) (res MapAddNodeRes, _ error) {
-	switch resp.StatusCode {
-	case 201:
-		// Code 201.
-		return &MapAddNodeCreated{}, nil
-	case 400:
-		// Code 400.
-		return &MapAddNodeBadRequest{}, nil
-	}
-	return res, validate.UnexpectedStatusCode(resp.StatusCode)
-}
-
 func decodeMapGetAirportMapResponse(resp *http.Response) (res *AirportMap, _ error) {
 	switch resp.StatusCode {
 	case 200:
@@ -149,6 +78,68 @@ func decodeMapGetAirportMapResponse(resp *http.Response) (res *AirportMap, _ err
 			d := jx.DecodeBytes(buf)
 
 			var response AirportMap
+			if err := func() error {
+				if err := response.Decode(d); err != nil {
+					return err
+				}
+				if err := d.Skip(); err != io.EOF {
+					return errors.New("unexpected trailing data")
+				}
+				return nil
+			}(); err != nil {
+				err = &ogenerrors.DecodeBodyError{
+					ContentType: ct,
+					Body:        buf,
+					Err:         err,
+				}
+				return res, err
+			}
+			// Validate response.
+			if err := func() error {
+				if err := response.Validate(); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return res, errors.Wrap(err, "validate")
+			}
+			return &response, nil
+		default:
+			return res, validate.InvalidContentType(ct)
+		}
+	}
+	return res, validate.UnexpectedStatusCode(resp.StatusCode)
+}
+
+func decodeMapRefreshAirportMapResponse(resp *http.Response) (res *MapRefreshAirportMapOK, _ error) {
+	switch resp.StatusCode {
+	case 200:
+		// Code 200.
+		return &MapRefreshAirportMapOK{}, nil
+	}
+	return res, validate.UnexpectedStatusCode(resp.StatusCode)
+}
+
+func decodeMapUpdateAirportMapResponse(resp *http.Response) (res MapUpdateAirportMapRes, _ error) {
+	switch resp.StatusCode {
+	case 200:
+		// Code 200.
+		return &MapUpdateAirportMapOK{}, nil
+	case 400:
+		// Code 400.
+		ct, _, err := mime.ParseMediaType(resp.Header.Get("Content-Type"))
+		if err != nil {
+			return res, errors.Wrap(err, "parse media type")
+		}
+		switch {
+		case ct == "application/json":
+			buf, err := io.ReadAll(resp.Body)
+			if err != nil {
+				return res, err
+			}
+			d := jx.DecodeBytes(buf)
+
+			var response ErrorResponse
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err

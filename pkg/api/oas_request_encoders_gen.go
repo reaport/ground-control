@@ -11,22 +11,8 @@ import (
 	ht "github.com/ogen-go/ogen/http"
 )
 
-func encodeMapAddEdgeRequest(
-	req *Edge,
-	r *http.Request,
-) error {
-	const contentType = "application/json"
-	e := new(jx.Encoder)
-	{
-		req.Encode(e)
-	}
-	encoded := e.Bytes()
-	ht.SetBody(r, bytes.NewReader(encoded), contentType)
-	return nil
-}
-
-func encodeMapAddNodeRequest(
-	req *Node,
+func encodeMapUpdateAirportMapRequest(
+	req *AirportMap,
 	r *http.Request,
 ) error {
 	const contentType = "application/json"

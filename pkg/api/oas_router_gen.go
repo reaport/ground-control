@@ -40,7 +40,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		s.notFound(w, r)
 		return
 	}
-	args := [2]string{}
+	args := [1]string{}
 
 	// Static code generated router with unwrapped path search.
 	switch {
@@ -94,70 +94,26 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 						break
 					}
 					switch elem[0] {
-					case '/': // Prefix: "/"
+					case '/': // Prefix: "/parking"
 						origElem := elem
-						if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+						if l := len("/parking"); len(elem) >= l && elem[0:l] == "/parking" {
 							elem = elem[l:]
 						} else {
 							break
 						}
 
 						if len(elem) == 0 {
-							break
-						}
-						switch elem[0] {
-						case 'p': // Prefix: "parking"
-							origElem := elem
-							if l := len("parking"); len(elem) >= l && elem[0:l] == "parking" {
-								elem = elem[l:]
-							} else {
-								break
+							// Leaf node.
+							switch r.Method {
+							case "GET":
+								s.handleAirplaneGetParkingSpotRequest([1]string{
+									args[0],
+								}, elemIsEscaped, w, r)
+							default:
+								s.notAllowed(w, r, "GET")
 							}
 
-							if len(elem) == 0 {
-								// Leaf node.
-								switch r.Method {
-								case "GET":
-									s.handleAirplaneGetParkingSpotRequest([1]string{
-										args[0],
-									}, elemIsEscaped, w, r)
-								default:
-									s.notAllowed(w, r, "GET")
-								}
-
-								return
-							}
-
-							elem = origElem
-						case 's': // Prefix: "service/"
-							origElem := elem
-							if l := len("service/"); len(elem) >= l && elem[0:l] == "service/" {
-								elem = elem[l:]
-							} else {
-								break
-							}
-
-							// Param: "type"
-							// Leaf parameter
-							args[1] = elem
-							elem = ""
-
-							if len(elem) == 0 {
-								// Leaf node.
-								switch r.Method {
-								case "GET":
-									s.handleAirplaneIDServiceTypeGetRequest([2]string{
-										args[0],
-										args[1],
-									}, elemIsEscaped, w, r)
-								default:
-									s.notAllowed(w, r, "GET")
-								}
-
-								return
-							}
-
-							elem = origElem
+							return
 						}
 
 						elem = origElem
@@ -212,67 +168,33 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 						switch r.Method {
 						case "GET":
 							s.handleMapGetAirportMapRequest([0]string{}, elemIsEscaped, w, r)
+						case "PUT":
+							s.handleMapUpdateAirportMapRequest([0]string{}, elemIsEscaped, w, r)
 						default:
-							s.notAllowed(w, r, "GET")
+							s.notAllowed(w, r, "GET,PUT")
 						}
 
 						return
 					}
 					switch elem[0] {
-					case '/': // Prefix: "/"
+					case '/': // Prefix: "/refresh"
 						origElem := elem
-						if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+						if l := len("/refresh"); len(elem) >= l && elem[0:l] == "/refresh" {
 							elem = elem[l:]
 						} else {
 							break
 						}
 
 						if len(elem) == 0 {
-							break
-						}
-						switch elem[0] {
-						case 'e': // Prefix: "edges"
-							origElem := elem
-							if l := len("edges"); len(elem) >= l && elem[0:l] == "edges" {
-								elem = elem[l:]
-							} else {
-								break
+							// Leaf node.
+							switch r.Method {
+							case "POST":
+								s.handleMapRefreshAirportMapRequest([0]string{}, elemIsEscaped, w, r)
+							default:
+								s.notAllowed(w, r, "POST")
 							}
 
-							if len(elem) == 0 {
-								// Leaf node.
-								switch r.Method {
-								case "POST":
-									s.handleMapAddEdgeRequest([0]string{}, elemIsEscaped, w, r)
-								default:
-									s.notAllowed(w, r, "POST")
-								}
-
-								return
-							}
-
-							elem = origElem
-						case 'n': // Prefix: "nodes"
-							origElem := elem
-							if l := len("nodes"); len(elem) >= l && elem[0:l] == "nodes" {
-								elem = elem[l:]
-							} else {
-								break
-							}
-
-							if len(elem) == 0 {
-								// Leaf node.
-								switch r.Method {
-								case "POST":
-									s.handleMapAddNodeRequest([0]string{}, elemIsEscaped, w, r)
-								default:
-									s.notAllowed(w, r, "POST")
-								}
-
-								return
-							}
-
-							elem = origElem
+							return
 						}
 
 						elem = origElem
@@ -382,7 +304,7 @@ type Route struct {
 	operationID string
 	pathPattern string
 	count       int
-	args        [2]string
+	args        [1]string
 }
 
 // Name returns ogen operation name.
@@ -495,73 +417,28 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 						break
 					}
 					switch elem[0] {
-					case '/': // Prefix: "/"
+					case '/': // Prefix: "/parking"
 						origElem := elem
-						if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+						if l := len("/parking"); len(elem) >= l && elem[0:l] == "/parking" {
 							elem = elem[l:]
 						} else {
 							break
 						}
 
 						if len(elem) == 0 {
-							break
-						}
-						switch elem[0] {
-						case 'p': // Prefix: "parking"
-							origElem := elem
-							if l := len("parking"); len(elem) >= l && elem[0:l] == "parking" {
-								elem = elem[l:]
-							} else {
-								break
+							// Leaf node.
+							switch method {
+							case "GET":
+								r.name = AirplaneGetParkingSpotOperation
+								r.summary = "Получение свободного места парковки для самолета"
+								r.operationID = "airplane_getParkingSpot"
+								r.pathPattern = "/airplane/{id}/parking"
+								r.args = args
+								r.count = 1
+								return r, true
+							default:
+								return
 							}
-
-							if len(elem) == 0 {
-								// Leaf node.
-								switch method {
-								case "GET":
-									r.name = AirplaneGetParkingSpotOperation
-									r.summary = "Получение свободного места парковки для самолета"
-									r.operationID = "airplane_getParkingSpot"
-									r.pathPattern = "/airplane/{id}/parking"
-									r.args = args
-									r.count = 1
-									return r, true
-								default:
-									return
-								}
-							}
-
-							elem = origElem
-						case 's': // Prefix: "service/"
-							origElem := elem
-							if l := len("service/"); len(elem) >= l && elem[0:l] == "service/" {
-								elem = elem[l:]
-							} else {
-								break
-							}
-
-							// Param: "type"
-							// Leaf parameter
-							args[1] = elem
-							elem = ""
-
-							if len(elem) == 0 {
-								// Leaf node.
-								switch method {
-								case "GET":
-									r.name = AirplaneIDServiceTypeGetOperation
-									r.summary = "Получение места для обслуживания самолета"
-									r.operationID = ""
-									r.pathPattern = "/airplane/{id}/service/{type}"
-									r.args = args
-									r.count = 2
-									return r, true
-								default:
-									return
-								}
-							}
-
-							elem = origElem
 						}
 
 						elem = origElem
@@ -626,73 +503,41 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 							r.args = args
 							r.count = 0
 							return r, true
+						case "PUT":
+							r.name = MapUpdateAirportMapOperation
+							r.summary = "Обновить карту аэропорта"
+							r.operationID = "map_updateAirportMap"
+							r.pathPattern = "/map"
+							r.args = args
+							r.count = 0
+							return r, true
 						default:
 							return
 						}
 					}
 					switch elem[0] {
-					case '/': // Prefix: "/"
+					case '/': // Prefix: "/refresh"
 						origElem := elem
-						if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+						if l := len("/refresh"); len(elem) >= l && elem[0:l] == "/refresh" {
 							elem = elem[l:]
 						} else {
 							break
 						}
 
 						if len(elem) == 0 {
-							break
-						}
-						switch elem[0] {
-						case 'e': // Prefix: "edges"
-							origElem := elem
-							if l := len("edges"); len(elem) >= l && elem[0:l] == "edges" {
-								elem = elem[l:]
-							} else {
-								break
+							// Leaf node.
+							switch method {
+							case "POST":
+								r.name = MapRefreshAirportMapOperation
+								r.summary = "Возвращает карту к исходному состоянию"
+								r.operationID = "map_refreshAirportMap"
+								r.pathPattern = "/map/refresh"
+								r.args = args
+								r.count = 0
+								return r, true
+							default:
+								return
 							}
-
-							if len(elem) == 0 {
-								// Leaf node.
-								switch method {
-								case "POST":
-									r.name = MapAddEdgeOperation
-									r.summary = "Добавить ребро на карту"
-									r.operationID = "map_addEdge"
-									r.pathPattern = "/map/edges"
-									r.args = args
-									r.count = 0
-									return r, true
-								default:
-									return
-								}
-							}
-
-							elem = origElem
-						case 'n': // Prefix: "nodes"
-							origElem := elem
-							if l := len("nodes"); len(elem) >= l && elem[0:l] == "nodes" {
-								elem = elem[l:]
-							} else {
-								break
-							}
-
-							if len(elem) == 0 {
-								// Leaf node.
-								switch method {
-								case "POST":
-									r.name = MapAddNodeOperation
-									r.summary = "Добавить узел на карту"
-									r.operationID = "map_addNode"
-									r.pathPattern = "/map/nodes"
-									r.args = args
-									r.count = 0
-									return r, true
-								default:
-									return
-								}
-							}
-
-							elem = origElem
 						}
 
 						elem = origElem

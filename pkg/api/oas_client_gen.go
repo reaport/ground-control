@@ -34,32 +34,24 @@ type Invoker interface {
 	//
 	// GET /airplane/{id}/parking
 	AirplaneGetParkingSpot(ctx context.Context, params AirplaneGetParkingSpotParams) (AirplaneGetParkingSpotRes, error)
-	// AirplaneIDServiceTypeGet invokes GET /airplane/{id}/service/{type} operation.
-	//
-	// В зависимости от типа транспорта отдает нужный узел
-	// для парковки.
-	//
-	// GET /airplane/{id}/service/{type}
-	AirplaneIDServiceTypeGet(ctx context.Context, params AirplaneIDServiceTypeGetParams) (AirplaneIDServiceTypeGetRes, error)
-	// MapAddEdge invokes map_addEdge operation.
-	//
-	// Добавляет новое ребро между узлами на карте
-	// аэропорта.
-	//
-	// POST /map/edges
-	MapAddEdge(ctx context.Context, request *Edge) (MapAddEdgeRes, error)
-	// MapAddNode invokes map_addNode operation.
-	//
-	// Добавляет новый узел на карту аэропорта.
-	//
-	// POST /map/nodes
-	MapAddNode(ctx context.Context, request *Node) (MapAddNodeRes, error)
 	// MapGetAirportMap invokes map_getAirportMap operation.
 	//
 	// Возвращает полную карту аэропорта в виде графа.
 	//
 	// GET /map
 	MapGetAirportMap(ctx context.Context) (*AirportMap, error)
+	// MapRefreshAirportMap invokes map_refreshAirportMap operation.
+	//
+	// Возвращает карту к исходному состоянию.
+	//
+	// POST /map/refresh
+	MapRefreshAirportMap(ctx context.Context) error
+	// MapUpdateAirportMap invokes map_updateAirportMap operation.
+	//
+	// Обновляет карту аэропорта.
+	//
+	// PUT /map
+	MapUpdateAirportMap(ctx context.Context, request *AirportMap) (MapUpdateAirportMapRes, error)
 	// MovingGetRoute invokes moving_getRoute operation.
 	//
 	// Запрашивает маршрут из точки А в точку Б.
@@ -222,266 +214,6 @@ func (c *Client) sendAirplaneGetParkingSpot(ctx context.Context, params Airplane
 	return result, nil
 }
 
-// AirplaneIDServiceTypeGet invokes GET /airplane/{id}/service/{type} operation.
-//
-// В зависимости от типа транспорта отдает нужный узел
-// для парковки.
-//
-// GET /airplane/{id}/service/{type}
-func (c *Client) AirplaneIDServiceTypeGet(ctx context.Context, params AirplaneIDServiceTypeGetParams) (AirplaneIDServiceTypeGetRes, error) {
-	res, err := c.sendAirplaneIDServiceTypeGet(ctx, params)
-	return res, err
-}
-
-func (c *Client) sendAirplaneIDServiceTypeGet(ctx context.Context, params AirplaneIDServiceTypeGetParams) (res AirplaneIDServiceTypeGetRes, err error) {
-	otelAttrs := []attribute.KeyValue{
-		semconv.HTTPRequestMethodKey.String("GET"),
-		semconv.HTTPRouteKey.String("/airplane/{id}/service/{type}"),
-	}
-
-	// Run stopwatch.
-	startTime := time.Now()
-	defer func() {
-		// Use floating point division here for higher precision (instead of Millisecond method).
-		elapsedDuration := time.Since(startTime)
-		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
-	}()
-
-	// Increment request counter.
-	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
-
-	// Start a span for this request.
-	ctx, span := c.cfg.Tracer.Start(ctx, AirplaneIDServiceTypeGetOperation,
-		trace.WithAttributes(otelAttrs...),
-		clientSpanKind,
-	)
-	// Track stage for error reporting.
-	var stage string
-	defer func() {
-		if err != nil {
-			span.RecordError(err)
-			span.SetStatus(codes.Error, stage)
-			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
-		}
-		span.End()
-	}()
-
-	stage = "BuildURL"
-	u := uri.Clone(c.requestURL(ctx))
-	var pathParts [4]string
-	pathParts[0] = "/airplane/"
-	{
-		// Encode "id" parameter.
-		e := uri.NewPathEncoder(uri.PathEncoderConfig{
-			Param:   "id",
-			Style:   uri.PathStyleSimple,
-			Explode: false,
-		})
-		if err := func() error {
-			return e.EncodeValue(conv.StringToString(params.ID))
-		}(); err != nil {
-			return res, errors.Wrap(err, "encode path")
-		}
-		encoded, err := e.Result()
-		if err != nil {
-			return res, errors.Wrap(err, "encode path")
-		}
-		pathParts[1] = encoded
-	}
-	pathParts[2] = "/service/"
-	{
-		// Encode "type" parameter.
-		e := uri.NewPathEncoder(uri.PathEncoderConfig{
-			Param:   "type",
-			Style:   uri.PathStyleSimple,
-			Explode: false,
-		})
-		if err := func() error {
-			return e.EncodeValue(conv.StringToString(string(params.Type)))
-		}(); err != nil {
-			return res, errors.Wrap(err, "encode path")
-		}
-		encoded, err := e.Result()
-		if err != nil {
-			return res, errors.Wrap(err, "encode path")
-		}
-		pathParts[3] = encoded
-	}
-	uri.AddPathParts(u, pathParts[:]...)
-
-	stage = "EncodeRequest"
-	r, err := ht.NewRequest(ctx, "GET", u)
-	if err != nil {
-		return res, errors.Wrap(err, "create request")
-	}
-
-	stage = "SendRequest"
-	resp, err := c.cfg.Client.Do(r)
-	if err != nil {
-		return res, errors.Wrap(err, "do request")
-	}
-	defer resp.Body.Close()
-
-	stage = "DecodeResponse"
-	result, err := decodeAirplaneIDServiceTypeGetResponse(resp)
-	if err != nil {
-		return res, errors.Wrap(err, "decode response")
-	}
-
-	return result, nil
-}
-
-// MapAddEdge invokes map_addEdge operation.
-//
-// Добавляет новое ребро между узлами на карте
-// аэропорта.
-//
-// POST /map/edges
-func (c *Client) MapAddEdge(ctx context.Context, request *Edge) (MapAddEdgeRes, error) {
-	res, err := c.sendMapAddEdge(ctx, request)
-	return res, err
-}
-
-func (c *Client) sendMapAddEdge(ctx context.Context, request *Edge) (res MapAddEdgeRes, err error) {
-	otelAttrs := []attribute.KeyValue{
-		otelogen.OperationID("map_addEdge"),
-		semconv.HTTPRequestMethodKey.String("POST"),
-		semconv.HTTPRouteKey.String("/map/edges"),
-	}
-
-	// Run stopwatch.
-	startTime := time.Now()
-	defer func() {
-		// Use floating point division here for higher precision (instead of Millisecond method).
-		elapsedDuration := time.Since(startTime)
-		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
-	}()
-
-	// Increment request counter.
-	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
-
-	// Start a span for this request.
-	ctx, span := c.cfg.Tracer.Start(ctx, MapAddEdgeOperation,
-		trace.WithAttributes(otelAttrs...),
-		clientSpanKind,
-	)
-	// Track stage for error reporting.
-	var stage string
-	defer func() {
-		if err != nil {
-			span.RecordError(err)
-			span.SetStatus(codes.Error, stage)
-			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
-		}
-		span.End()
-	}()
-
-	stage = "BuildURL"
-	u := uri.Clone(c.requestURL(ctx))
-	var pathParts [1]string
-	pathParts[0] = "/map/edges"
-	uri.AddPathParts(u, pathParts[:]...)
-
-	stage = "EncodeRequest"
-	r, err := ht.NewRequest(ctx, "POST", u)
-	if err != nil {
-		return res, errors.Wrap(err, "create request")
-	}
-	if err := encodeMapAddEdgeRequest(request, r); err != nil {
-		return res, errors.Wrap(err, "encode request")
-	}
-
-	stage = "SendRequest"
-	resp, err := c.cfg.Client.Do(r)
-	if err != nil {
-		return res, errors.Wrap(err, "do request")
-	}
-	defer resp.Body.Close()
-
-	stage = "DecodeResponse"
-	result, err := decodeMapAddEdgeResponse(resp)
-	if err != nil {
-		return res, errors.Wrap(err, "decode response")
-	}
-
-	return result, nil
-}
-
-// MapAddNode invokes map_addNode operation.
-//
-// Добавляет новый узел на карту аэропорта.
-//
-// POST /map/nodes
-func (c *Client) MapAddNode(ctx context.Context, request *Node) (MapAddNodeRes, error) {
-	res, err := c.sendMapAddNode(ctx, request)
-	return res, err
-}
-
-func (c *Client) sendMapAddNode(ctx context.Context, request *Node) (res MapAddNodeRes, err error) {
-	otelAttrs := []attribute.KeyValue{
-		otelogen.OperationID("map_addNode"),
-		semconv.HTTPRequestMethodKey.String("POST"),
-		semconv.HTTPRouteKey.String("/map/nodes"),
-	}
-
-	// Run stopwatch.
-	startTime := time.Now()
-	defer func() {
-		// Use floating point division here for higher precision (instead of Millisecond method).
-		elapsedDuration := time.Since(startTime)
-		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
-	}()
-
-	// Increment request counter.
-	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
-
-	// Start a span for this request.
-	ctx, span := c.cfg.Tracer.Start(ctx, MapAddNodeOperation,
-		trace.WithAttributes(otelAttrs...),
-		clientSpanKind,
-	)
-	// Track stage for error reporting.
-	var stage string
-	defer func() {
-		if err != nil {
-			span.RecordError(err)
-			span.SetStatus(codes.Error, stage)
-			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
-		}
-		span.End()
-	}()
-
-	stage = "BuildURL"
-	u := uri.Clone(c.requestURL(ctx))
-	var pathParts [1]string
-	pathParts[0] = "/map/nodes"
-	uri.AddPathParts(u, pathParts[:]...)
-
-	stage = "EncodeRequest"
-	r, err := ht.NewRequest(ctx, "POST", u)
-	if err != nil {
-		return res, errors.Wrap(err, "create request")
-	}
-	if err := encodeMapAddNodeRequest(request, r); err != nil {
-		return res, errors.Wrap(err, "encode request")
-	}
-
-	stage = "SendRequest"
-	resp, err := c.cfg.Client.Do(r)
-	if err != nil {
-		return res, errors.Wrap(err, "do request")
-	}
-	defer resp.Body.Close()
-
-	stage = "DecodeResponse"
-	result, err := decodeMapAddNodeResponse(resp)
-	if err != nil {
-		return res, errors.Wrap(err, "decode response")
-	}
-
-	return result, nil
-}
-
 // MapGetAirportMap invokes map_getAirportMap operation.
 //
 // Возвращает полную карту аэропорта в виде графа.
@@ -547,6 +279,153 @@ func (c *Client) sendMapGetAirportMap(ctx context.Context) (res *AirportMap, err
 
 	stage = "DecodeResponse"
 	result, err := decodeMapGetAirportMapResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// MapRefreshAirportMap invokes map_refreshAirportMap operation.
+//
+// Возвращает карту к исходному состоянию.
+//
+// POST /map/refresh
+func (c *Client) MapRefreshAirportMap(ctx context.Context) error {
+	_, err := c.sendMapRefreshAirportMap(ctx)
+	return err
+}
+
+func (c *Client) sendMapRefreshAirportMap(ctx context.Context) (res *MapRefreshAirportMapOK, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("map_refreshAirportMap"),
+		semconv.HTTPRequestMethodKey.String("POST"),
+		semconv.HTTPRouteKey.String("/map/refresh"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, MapRefreshAirportMapOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [1]string
+	pathParts[0] = "/map/refresh"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "POST", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeMapRefreshAirportMapResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// MapUpdateAirportMap invokes map_updateAirportMap operation.
+//
+// Обновляет карту аэропорта.
+//
+// PUT /map
+func (c *Client) MapUpdateAirportMap(ctx context.Context, request *AirportMap) (MapUpdateAirportMapRes, error) {
+	res, err := c.sendMapUpdateAirportMap(ctx, request)
+	return res, err
+}
+
+func (c *Client) sendMapUpdateAirportMap(ctx context.Context, request *AirportMap) (res MapUpdateAirportMapRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("map_updateAirportMap"),
+		semconv.HTTPRequestMethodKey.String("PUT"),
+		semconv.HTTPRouteKey.String("/map"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, MapUpdateAirportMapOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [1]string
+	pathParts[0] = "/map"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "PUT", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+	if err := encodeMapUpdateAirportMapRequest(request, r); err != nil {
+		return res, errors.Wrap(err, "encode request")
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeMapUpdateAirportMapResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}

@@ -27,17 +27,19 @@ func (c *Controller) MovingRegisterVehicle(
 		logger.GlobalLogger.Error(
 			"failed to convert vehicle type from API",
 			zap.Error(fmt.Errorf("VehicleTypeFromAPI: %w", err)),
+			zap.String("type", string(params.Type)),
 		)
 		return &api.MovingRegisterVehicleBadRequest{}, nil
 	}
 
-	nodeID, vehicleID, err := c.mapService.RegisterVehicle(ctx, vehicleType)
+	vehicleInitInfo, err := c.mapService.RegisterVehicle(ctx, vehicleType)
 	if err != nil {
 		err = fmt.Errorf("c.mapService.RegisterVehicle: %w", err)
 		if errors.Is(err, entity.ErrAirstripIsFull) {
 			logger.GlobalLogger.Error(
 				"airstrip is full",
 				zap.Error(err),
+				zap.String("type", string(params.Type)),
 			)
 			return &api.MovingRegisterVehicleConflict{}, nil
 		}
@@ -45,19 +47,18 @@ func (c *Controller) MovingRegisterVehicle(
 		logger.GlobalLogger.Error(
 			"failed to register vehicle",
 			zap.Error(err),
+			zap.String("type", string(params.Type)),
 		)
 		return nil, err
 	}
 
 	logger.GlobalLogger.Info(
 		"vehicle registered",
-		zap.String("node_id", nodeID),
-		zap.String("vehicle_id", vehicleID),
+		zap.String("garrage_node_id", vehicleInitInfo.GarrageNodeID),
+		zap.String("vehicle_id", vehicleInitInfo.VehicleID),
 		zap.String("type", string(params.Type)),
+		zap.Any("service_spots", vehicleInitInfo.ServiceSpots),
 	)
 
-	return &api.MovingRegisterVehicleOK{
-		NodeId:    nodeID,
-		VehicleId: vehicleID,
-	}, nil
+	return convert.VehicleInitInfoToAPI(vehicleInitInfo), nil
 }
