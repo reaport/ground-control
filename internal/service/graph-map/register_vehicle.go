@@ -60,6 +60,10 @@ func (s *Service) RegisterVehicle(
 		}
 
 		airplaneParkingNodeParts := strings.Split(airplaneParkingNode.ID, "_")
+		if len(airplaneParkingNodeParts) != 3 {
+			continue
+		}
+
 		airplaneParkingNumber := airplaneParkingNodeParts[len(airplaneParkingNodeParts)-1]
 
 		var serviceCrossroadNode *entity.Node
