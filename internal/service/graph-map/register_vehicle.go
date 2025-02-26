@@ -27,108 +27,127 @@ func (s *Service) RegisterVehicle(
 	defer s.mapMutex.Unlock()
 
 	if vehicleType == entity.VehicleTypeAirplane {
-		nodeID, vehicleID, err := s.RegisterAirplane()
-		if err != nil {
-			return nil, fmt.Errorf("RegisterAirplane: %w", err)
-		}
-
-		return entity.NewVehicleInitInfo(vehicleID, nodeID, nil), nil
+		return s.registerAirplane()
 	}
 
-	var vehicleInitInfo entity.VehicleInitInfo
+	return s.registerGroundVehicle(vehicleType)
+}
 
-	vehicleSequence := s.vehicleSequenceMap[vehicleType]
-	vehicleSequence++
-	vehicleInitInfo.VehicleID = fmt.Sprintf("%s_%d", vehicleType, vehicleSequence)
-	s.vehicleSequenceMap[vehicleType] = vehicleSequence
+func (s *Service) registerAirplane() (*entity.VehicleInitInfo, error) {
+	nodeID, vehicleID, err := s.findAirstripForAirplane()
+	if err != nil {
+		return nil, fmt.Errorf("registerAirplane: %w", err)
+	}
 
-	vehicleGarrageNodeID := fmt.Sprintf("%s_%s", garrageNodeID, vehicleInitInfo.VehicleID)
+	return entity.NewVehicleInitInfo(vehicleID, nodeID, nil), nil
+}
+
+func (s *Service) registerGroundVehicle(vehicleType entity.VehicleType) (*entity.VehicleInitInfo, error) {
+	vehicleID := s.generateVehicleID(vehicleType)
+	vehicleGarrageNodeID := fmt.Sprintf("%s_%s", garrageNodeID, vehicleID)
 	vehicleGarrageNode := entity.NewNode(vehicleGarrageNodeID, []entity.VehicleType{vehicleType})
-	vehicleInitInfo.GarrageNodeID = vehicleGarrageNodeID
-	vehicleGarrageNode.AddVehicle(entity.NewVehicle(vehicleInitInfo.VehicleID, vehicleType))
-	s.airportMap.Nodes = append(s.airportMap.Nodes, vehicleGarrageNode)
 
-	s.airportMap.Edges = append(s.airportMap.Edges, entity.NewEdge(garrageNodeID, vehicleGarrageNodeID, closeDistance))
-	s.airportMap.Edges = append(s.airportMap.Edges, entity.NewEdge(vehicleGarrageNodeID, garrageNodeID, closeDistance))
+	s.addVehicleToGarage(vehicleGarrageNode, vehicleID, vehicleType)
+	s.createGarageEdges(vehicleGarrageNodeID)
 
-	s.airportMap.Edges = append(s.airportMap.Edges, entity.NewEdge(vehicleGarrageNodeID, airportNodeID, closeDistance))
+	serviceSpots, err := s.createServiceSpots(vehicleType, vehicleID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &entity.VehicleInitInfo{
+		VehicleID:     vehicleID,
+		GarrageNodeID: vehicleGarrageNodeID,
+		ServiceSpots:  serviceSpots,
+	}, nil
+}
+
+func (s *Service) generateVehicleID(vehicleType entity.VehicleType) string {
+	vehicleSequence := s.vehicleSequenceMap[vehicleType] + 1
+	s.vehicleSequenceMap[vehicleType] = vehicleSequence
+	return fmt.Sprintf("%s_%d", vehicleType, vehicleSequence)
+}
+
+func (s *Service) addVehicleToGarage(node *entity.Node, vehicleID string, vehicleType entity.VehicleType) {
+	node.AddVehicle(entity.NewVehicle(vehicleID, vehicleType))
+	s.airportMap.Nodes = append(s.airportMap.Nodes, node)
+}
+
+func (s *Service) createGarageEdges(vehicleGarrageNodeID string) {
+	s.airportMap.Edges = append(s.airportMap.Edges,
+		entity.NewEdge(garrageNodeID, vehicleGarrageNodeID, closeDistance),
+		entity.NewEdge(vehicleGarrageNodeID, garrageNodeID, closeDistance),
+		entity.NewEdge(vehicleGarrageNodeID, airportNodeID, closeDistance),
+	)
+}
+
+func (s *Service) createServiceSpots(vehicleType entity.VehicleType, vehicleID string) (map[string]string, error) {
+	serviceSpots := make(map[string]string)
 
 	for _, parkingNode := range s.airportMap.Nodes {
-		if !strings.HasPrefix(parkingNode.ID, parkingPrefix) || len(strings.Split(parkingNode.ID, "_")) != 2 {
+		if !isParkingNode(parkingNode.ID) {
 			continue
 		}
 
-		var garrageToParkingNode *entity.Node
-		var garrageFromParkingNode *entity.Node
-
-		for _, node := range s.airportMap.Nodes {
-			if node == parkingNode || !strings.HasSuffix(node.ID, parkingNode.ID) || !strings.HasPrefix(node.ID, garrageNodeID) {
-				continue
-			}
-
-			trimmed := strings.TrimSuffix(node.ID, "_"+parkingNode.ID)
-			parts := strings.Split(trimmed, "_")
-			direction := parts[len(parts)-1]
-			if direction != "to" && direction != "from" {
-				return nil, fmt.Errorf("%w: invalid direction %s", entity.ErrInvalidDirection, direction)
-			}
-
-			switch direction {
-			case "to":
-				garrageToParkingNode = s.findNodeByID(node.ID)
-			case "from":
-				garrageFromParkingNode = s.findNodeByID(node.ID)
-			}
-
-			if garrageToParkingNode != nil && garrageFromParkingNode != nil {
-				break
-			}
+		garrageToParking, garrageFromParking, err := s.findGarageConnections(parkingNode.ID)
+		if err != nil {
+			return nil, err
 		}
 
-		if garrageToParkingNode == nil {
-			return nil, fmt.Errorf("%w: from garrage to %s", entity.ErrNodeNotFound, parkingNode.ID)
-		}
-
-		if garrageFromParkingNode == nil {
-			return nil, fmt.Errorf("%w: from %s to garrage", entity.ErrNodeNotFound, parkingNode.ID)
-		}
-
-		serviceSpotNodeID := fmt.Sprintf("%s_%s", parkingNode.ID, vehicleInitInfo.VehicleID)
+		serviceSpotNodeID := fmt.Sprintf("%s_%s", parkingNode.ID, vehicleID)
 		serviceSpotNode := entity.NewNode(serviceSpotNodeID, []entity.VehicleType{vehicleType})
 		s.airportMap.Nodes = append(s.airportMap.Nodes, serviceSpotNode)
 
-		s.airportMap.Edges = append(s.airportMap.Edges, entity.NewEdge(garrageToParkingNode.ID, serviceSpotNodeID, midDistance))
-		s.airportMap.Edges = append(s.airportMap.Edges, entity.NewEdge(serviceSpotNodeID, garrageFromParkingNode.ID, midDistance))
+		s.airportMap.Edges = append(s.airportMap.Edges,
+			entity.NewEdge(garrageToParking.ID, serviceSpotNodeID, midDistance),
+			entity.NewEdge(serviceSpotNodeID, garrageFromParking.ID, midDistance),
+			entity.NewEdge(serviceSpotNodeID, parkingNode.ID, closeDistance),
+		)
 
-		s.airportMap.Edges = append(s.airportMap.Edges, entity.NewEdge(serviceSpotNodeID, parkingNode.ID, closeDistance))
-
-		if vehicleInitInfo.ServiceSpots == nil {
-			vehicleInitInfo.ServiceSpots = make(map[string]string)
-		}
-
-		vehicleInitInfo.ServiceSpots[parkingNode.ID] = serviceSpotNodeID
+		serviceSpots[parkingNode.ID] = serviceSpotNodeID
 	}
 
-	return &vehicleInitInfo, nil
+	return serviceSpots, nil
 }
 
-func (s *Service) RegisterAirplane() (nodeID string, vehicleID string, err error) {
+func isParkingNode(nodeID string) bool {
+	return strings.HasPrefix(nodeID, "parking_") && len(strings.Split(nodeID, "_")) == 2
+}
+
+func (s *Service) findGarageConnections(parkingNodeID string) (*entity.Node, *entity.Node, error) {
+	var garrageToParking, garrageFromParking *entity.Node
+
 	for _, node := range s.airportMap.Nodes {
-		if node.ID == airstripNodeID {
-			if len(node.Vehicles) != 0 {
-				return "", "", entity.ErrAirstripIsFull
+		if node == nil || !strings.HasSuffix(node.ID, parkingNodeID) {
+			continue
+		}
+
+		if strings.HasPrefix(node.ID, garrageNodeID) {
+			parts := strings.Split(strings.TrimSuffix(node.ID, "_"+parkingNodeID), "_")
+			direction := parts[len(parts)-1]
+			switch direction {
+			case "to":
+				garrageToParking = node
+			case "from":
+				garrageFromParking = node
 			}
-
-			airplaneSequence := s.vehicleSequenceMap[entity.VehicleTypeAirplane]
-			airplaneSequence++
-			airplaneID := fmt.Sprintf("%s_%d", entity.VehicleTypeAirplane, airplaneSequence)
-			s.vehicleSequenceMap[entity.VehicleTypeAirplane] = airplaneSequence
-
-			node.AddVehicle(entity.NewVehicle(airplaneID, entity.VehicleTypeAirplane))
-
-			return node.ID, airplaneID, nil
 		}
 	}
 
+	if garrageToParking == nil || garrageFromParking == nil {
+		return nil, nil, fmt.Errorf("garage connection not found for %s", parkingNodeID)
+	}
+
+	return garrageToParking, garrageFromParking, nil
+}
+
+func (s *Service) findAirstripForAirplane() (string, string, error) {
+	for _, node := range s.airportMap.Nodes {
+		if node.ID == airstripNodeID && len(node.Vehicles) == 0 {
+			vehicleID := s.generateVehicleID(entity.VehicleTypeAirplane)
+			node.AddVehicle(entity.NewVehicle(vehicleID, entity.VehicleTypeAirplane))
+			return node.ID, vehicleID, nil
+		}
+	}
 	return "", "", entity.ErrAirstripNotFound
 }
