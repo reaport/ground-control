@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	airplaneParkingPrefix = "airplane_parking"
+	parkingPrefix = "parking"
 )
 
 func (s *Service) GetAirplaneParkingSpot(_ context.Context, airplaneID string) (string, error) {
@@ -16,7 +16,7 @@ func (s *Service) GetAirplaneParkingSpot(_ context.Context, airplaneID string) (
 	defer s.mapMutex.Unlock()
 
 	for _, node := range s.airportMap.Nodes {
-		if strings.HasPrefix(node.ID, airplaneParkingPrefix) {
+		if strings.HasPrefix(node.ID, parkingPrefix) {
 			if len(node.Vehicles) == 0 || node.Vehicles[0].Type == entity.VehicleTypeFollowMe {
 				node.AddVehicle(entity.NewVehicle(airplaneID, entity.VehicleTypeAirplane))
 				return node.ID, nil

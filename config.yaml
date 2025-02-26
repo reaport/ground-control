@@ -1,6 +1,6 @@
 logger:
   level: debug
-  development: true
+  development: false
 
 server:
   port: 8080

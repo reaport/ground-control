@@ -60,7 +60,7 @@ func (s *Service) RequestMove(
 
 func (s *Service) getEdge(nodeIDFrom, nodeIDTo string) *entity.Edge {
 	for _, edge := range s.airportMap.Edges {
-		if (edge.From == nodeIDFrom && edge.To == nodeIDTo) || (edge.From == nodeIDTo && edge.To == nodeIDFrom) {
+		if edge.From == nodeIDFrom && edge.To == nodeIDTo {
 			return edge
 		}
 	}

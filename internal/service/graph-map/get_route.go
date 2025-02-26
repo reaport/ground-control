@@ -22,8 +22,12 @@ func (s *Service) GetRoute(
 	}
 
 	fromNode, toNode := s.findNodeByID(nodeIDFrom), s.findNodeByID(nodeIDTo)
-	if fromNode == nil || toNode == nil {
-		return nil, fmt.Errorf("%w: node not found", entity.ErrNodeNotFound)
+	if fromNode == nil {
+		return nil, fmt.Errorf("%w: %s (from)", entity.ErrNodeNotFound, nodeIDFrom)
+	}
+
+	if toNode == nil {
+		return nil, fmt.Errorf("%w: %s (to)", entity.ErrNodeNotFound, nodeIDTo)
 	}
 
 	if !toNode.IsValidType(vehicleType) {
@@ -37,34 +41,30 @@ func (s *Service) GetRoute(
 
 	distances := make(map[string]float64)
 	previous := make(map[string]string)
-	nodes := make(map[string]bool)
+	unvisited := make(map[string]bool)
 
 	for _, node := range s.airportMap.Nodes {
 		distances[node.ID] = math.Inf(1)
 		previous[node.ID] = ""
-		nodes[node.ID] = true
+		unvisited[node.ID] = true
 	}
 	distances[nodeIDFrom] = 0
 
-	for len(nodes) > 0 {
-		minNode := s.findMinDistanceNode(nodes, distances)
+	for len(unvisited) > 0 {
+		minNode := s.findMinDistanceNode(unvisited, distances)
 		if minNode == "" {
 			break
 		}
 
-		delete(nodes, minNode)
+		delete(unvisited, minNode)
 
 		if minNode == nodeIDTo {
 			return s.buildPath(previous, nodeIDTo), nil
 		}
 
 		for _, edge := range s.airportMap.Edges {
-			if edge.From == minNode || edge.To == minNode {
+			if edge.From == minNode {
 				targetNodeID := edge.To
-				if edge.To == minNode {
-					targetNodeID = edge.From
-				}
-
 				targetNode := s.findNodeByID(targetNodeID)
 				if targetNode != nil && targetNode.IsValidType(vehicleType) {
 					alt := distances[minNode] + edge.Distance
@@ -89,10 +89,10 @@ func (s *Service) findNodeByID(nodeID string) *entity.Node {
 	return nil
 }
 
-func (s *Service) findMinDistanceNode(nodes map[string]bool, distances map[string]float64) string {
-	minNode := ""
+func (s *Service) findMinDistanceNode(unvisited map[string]bool, distances map[string]float64) string {
+	var minNode string
 	minDist := math.Inf(1)
-	for node := range nodes {
+	for node := range unvisited {
 		if distances[node] < minDist {
 			minDist = distances[node]
 			minNode = node
