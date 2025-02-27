@@ -118,6 +118,28 @@ func (c *Controller) MovingRequestMove( //nolint:funlen // a lot of logs
 		zap.Float64("distance", distance),
 	)
 
+	err = c.eventSender.SendEvent(ctx, &entity.Event{
+		Type: entity.VehicleLeftNodeEventType,
+		Data: entity.EventData{
+			"vehicle_id":   req.VehicleId,
+			"vehicle_type": string(req.VehicleType),
+			"from":         req.From,
+			"to":           req.To,
+			"distance":     distance,
+		},
+	})
+	if err != nil {
+		logger.GlobalLogger.Error(
+			"failed to send event",
+			zap.Error(err),
+			zap.String("vehicle_id", req.VehicleId),
+			zap.String("vehicle_type", string(req.VehicleType)),
+			zap.String("from", req.From),
+			zap.String("to", req.To),
+			zap.Float64("distance", distance),
+		)
+	}
+
 	return &api.MovingRequestMoveOK{
 		Distance: distance,
 	}, nil

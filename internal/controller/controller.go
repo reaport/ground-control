@@ -6,30 +6,38 @@ import (
 	"github.com/reaport/ground-control/internal/entity"
 )
 
-type MapService interface {
-	GetAirportMap(ctx context.Context) (*entity.AirportMap, error)
-	RefreshAirportMap(ctx context.Context) error
-	UpdateAirportMap(_ context.Context, airportMap *entity.AirportMap) error
+type (
+	MapService interface {
+		GetAirportMap(ctx context.Context) (*entity.AirportMap, error)
+		RefreshAirportMap(ctx context.Context) error
+		UpdateAirportMap(_ context.Context, airportMap *entity.AirportMap) error
 
-	RegisterVehicle(ctx context.Context, vehicleType entity.VehicleType) (*entity.VehicleInitInfo, error)
-	GetRoute(ctx context.Context, nodeIDFrom, nodeIDTo string, vehicleType entity.VehicleType) ([]string, error)
-	RequestMove(
-		ctx context.Context,
-		vehicleID string,
-		nodeIDFrom, nodeIDTo string,
-		vehicleType entity.VehicleType,
-	) (float64, error)
-	NotifyArrival(ctx context.Context, nodeID string, vehicleID string) error
+		RegisterVehicle(ctx context.Context, vehicleType entity.VehicleType) (*entity.VehicleInitInfo, error)
+		GetRoute(ctx context.Context, nodeIDFrom, nodeIDTo string, vehicleType entity.VehicleType) ([]string, error)
+		RequestMove(
+			ctx context.Context,
+			vehicleID string,
+			nodeIDFrom, nodeIDTo string,
+			vehicleType entity.VehicleType,
+		) (float64, error)
+		NotifyArrival(ctx context.Context, nodeID string, vehicleID string) error
 
-	GetAirplaneParkingSpot(ctx context.Context, airplaneID string) (string, error)
-}
+		GetAirplaneParkingSpot(ctx context.Context, airplaneID string) (string, error)
+	}
 
-type Controller struct {
-	mapService MapService
-}
+	EventSender interface {
+		SendEvent(ctx context.Context, event *entity.Event) error
+	}
 
-func New(mapService MapService) *Controller {
+	Controller struct {
+		mapService  MapService
+		eventSender EventSender
+	}
+)
+
+func New(mapService MapService, eventSender EventSender) *Controller {
 	return &Controller{
-		mapService: mapService,
+		mapService:  mapService,
+		eventSender: eventSender,
 	}
 }

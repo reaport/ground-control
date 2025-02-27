@@ -55,5 +55,20 @@ func (c *Controller) MapUpdateAirportMap(ctx context.Context, req *api.AirportMa
 		zap.Any("map", req),
 	)
 
+	err = c.eventSender.SendEvent(ctx, &entity.Event{
+		Type: entity.MapUpdatedEventType,
+		Data: entity.EventData{
+			"map": req,
+		},
+	})
+	if err != nil {
+		logger.GlobalLogger.Error(
+			"failed to send event",
+			zap.Error(fmt.Errorf("c.eventSender.SendEvent: %w", err)),
+			zap.String("event_type", string(entity.MapUpdatedEventType)),
+			zap.Any("map", req),
+		)
+	}
+
 	return &api.MapUpdateAirportMapOK{}, nil
 }
