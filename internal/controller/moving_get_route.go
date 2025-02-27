@@ -17,7 +17,10 @@ import (
 // Запрашивает маршрут из точки А в точку Б.
 //
 // POST /route
-func (c *Controller) MovingGetRoute(ctx context.Context, req *api.MovingGetRouteReq) (api.MovingGetRouteRes, error) {
+func (c *Controller) MovingGetRoute( //nolint:funlen // a lof of logs
+	ctx context.Context,
+	req *api.MovingGetRouteReq,
+) (api.MovingGetRouteRes, error) {
 	vehicleType, err := convert.VehicleTypeFromAPI(req.Type)
 	if err != nil {
 		err = fmt.Errorf("VehicleTypeFromAPI: %w", err)
