@@ -1,0 +1,98 @@
+{
+  "nodes": [
+    { "id": "airstrip", "types": ["airplane", "follow-me"] },
+
+    { "id": "airplane_to_parking_1", "types": ["airplane", "follow-me"] },
+    { "id": "airplane_from_parking_1", "types": ["airplane", "follow-me"] },
+    { "id": "parking_1", "types": ["airplane", "follow-me"] },
+
+    { "id": "airplane_to_parking_2", "types": ["airplane", "follow-me"] },
+    { "id": "airplane_from_parking_2", "types": ["airplane", "follow-me"] },
+    { "id": "parking_2", "types": ["airplane", "follow-me"] },
+    { 
+      "id": "garrage",
+      "types": [
+        "follow-me",
+        "catering",
+        "refueling",
+        "cleaning",
+        "baggage",
+        "charging",
+        "bus",
+        "ramp"
+      ]
+    },
+    {
+      "id": "garrage_to_parking_1",
+      "types": [
+        "catering",
+        "refueling",
+        "cleaning",
+        "baggage",
+        "charging",
+        "bus",
+        "ramp"
+      ]
+    },
+    {
+      "id": "garrage_from_parking_1",
+      "types": [
+        "catering",
+        "refueling",
+        "cleaning",
+        "baggage",
+        "charging",
+        "bus",
+        "ramp"
+      ]
+    },
+    {
+      "id": "garrage_to_parking_2",
+      "types": [
+        "catering",
+        "refueling",
+        "cleaning",
+        "baggage",
+        "charging",
+        "bus",
+        "ramp"
+      ]
+    },
+    {
+      "id": "garrage_from_parking_2",
+      "types": [
+        "catering",
+        "refueling",
+        "cleaning",
+        "baggage",
+        "charging",
+        "bus",
+        "ramp"
+      ]
+    },
+    { "id": "garrage_to_airstrip","types": ["follow-me"] },
+    { "id": "garrage_from_airstrip","types": ["follow-me"] },
+    { "id": "airport", "types": [] }
+  ],
+  "edges": [
+    { "from": "airstrip", "to": "airplane_to_parking_1", "distance": 100 },
+    { "from": "airstrip", "to": "airplane_to_parking_2", "distance": 100 },
+    { "from": "airplane_to_parking_1", "to": "parking_1", "distance": 100 },
+    { "from": "airplane_to_parking_2", "to": "parking_2", "distance": 100 },
+    { "from": "parking_1", "to": "airplane_from_parking_1", "distance": 100 },
+    { "from": "parking_2", "to": "airplane_from_parking_2", "distance": 100 },
+    { "from": "airplane_from_parking_1", "to": "airstrip", "distance": 100 },
+    { "from": "airplane_from_parking_2", "to": "airstrip", "distance": 100 },
+
+    { "from": "garrage", "to": "garrage_to_airstrip", "distance": 100 },
+    { "from": "garrage_to_airstrip", "to": "airstrip", "distance": 100 },
+    { "from": "airstrip", "to": "garrage_from_airstrip", "distance": 100 },
+    { "from": "garrage_from_airstrip", "to": "garrage", "distance": 100 },
+
+    { "from": "garrage", "to": "garrage_to_parking_1", "distance": 100 },
+    { "from": "garrage_from_parking_1", "to": "garrage", "distance": 100 },
+
+    { "from": "garrage", "to": "garrage_to_parking_2", "distance": 100 },
+    { "from": "garrage_from_parking_2", "to": "garrage", "distance": 100 }
+  ]
+}

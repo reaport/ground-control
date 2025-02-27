@@ -1,0 +1,10 @@
+logger:
+  level: debug
+  development: false
+
+server:
+  port: 8080
+  read_header_timeout: 5
+
+map:
+  path: "map.json"
