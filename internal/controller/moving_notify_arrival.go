@@ -62,5 +62,22 @@ func (c *Controller) MovingNotifyArrival(
 		zap.String("vehicle_id", req.VehicleId),
 	)
 
+	err = c.eventSender.SendEvent(ctx, &entity.Event{
+		Type: entity.VehicleArrivedEventType,
+		Data: entity.EventData{
+			"vehicle_id": req.VehicleId,
+			"node_id":    req.NodeId,
+		},
+	})
+	if err != nil {
+		logger.GlobalLogger.Error(
+			"failed to send event",
+			zap.Error(fmt.Errorf("c.eventSender.SendEvent: %w", err)),
+			zap.String("event_type", string(entity.VehicleArrivedEventType)),
+			zap.String("vehicle_id", req.VehicleId),
+			zap.String("node_id", req.NodeId),
+		)
+	}
+
 	return &api.MovingNotifyArrivalOK{}, nil
 }

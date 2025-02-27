@@ -17,7 +17,10 @@ import (
 // Запрашивает маршрут из точки А в точку Б.
 //
 // POST /route
-func (c *Controller) MovingGetRoute(ctx context.Context, req *api.MovingGetRouteReq) (api.MovingGetRouteRes, error) {
+func (c *Controller) MovingGetRoute( //nolint:funlen // a lof of logs
+	ctx context.Context,
+	req *api.MovingGetRouteReq,
+) (api.MovingGetRouteRes, error) {
 	vehicleType, err := convert.VehicleTypeFromAPI(req.Type)
 	if err != nil {
 		err = fmt.Errorf("VehicleTypeFromAPI: %w", err)
@@ -96,6 +99,27 @@ func (c *Controller) MovingGetRoute(ctx context.Context, req *api.MovingGetRoute
 		zap.String("vehicle_type", string(req.Type)),
 		zap.Any("route", route),
 	)
+
+	err = c.eventSender.SendEvent(ctx, &entity.Event{
+		Type: entity.RouteCalculatedEventType,
+		Data: entity.EventData{
+			"from":  req.From,
+			"to":    req.To,
+			"type":  req.Type,
+			"route": route,
+		},
+	})
+	if err != nil {
+		logger.GlobalLogger.Error(
+			"failed to send event",
+			zap.Error(fmt.Errorf("c.eventSender.SendEvent: %w", err)),
+			zap.String("event_type", string(entity.RouteCalculatedEventType)),
+			zap.String("from", req.From),
+			zap.String("to", req.To),
+			zap.String("vehicle_type", string(req.Type)),
+			zap.Any("route", route),
+		)
+	}
 
 	return &apiRoute, nil
 }

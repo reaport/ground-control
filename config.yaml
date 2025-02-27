@@ -8,3 +8,8 @@ server:
 
 map:
   path: "map.json"
+
+rabbitmq:
+  url: "amqp://guest:guest@localhost:5672/"
+  queue: "events_queue"
+  

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/reaport/ground-control/internal/entity"
 	"github.com/reaport/ground-control/pkg/logger"
 	"go.uber.org/zap"
 )
@@ -27,6 +28,16 @@ func (c *Controller) MapRefreshAirportMap(ctx context.Context) error {
 	logger.GlobalLogger.Info(
 		"map refreshed",
 	)
+	err = c.eventSender.SendEvent(ctx, &entity.Event{
+		Type: entity.MapRefreshedEventType,
+	})
+	if err != nil {
+		logger.GlobalLogger.Error(
+			"failed to send event",
+			zap.Error(fmt.Errorf("c.eventSender.SendEvent: %w", err)),
+			zap.String("event_type", string(entity.MapRefreshedEventType)),
+		)
+	}
 
 	return nil
 }

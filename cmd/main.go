@@ -13,6 +13,8 @@ import (
 
 	"github.com/reaport/ground-control/internal/config"
 	"github.com/reaport/ground-control/internal/controller"
+	"github.com/reaport/ground-control/internal/entity"
+	eventsenderrmq "github.com/reaport/ground-control/internal/service/event-sender-rmq"
 	graphmap "github.com/reaport/ground-control/internal/service/graph-map"
 	"github.com/reaport/ground-control/pkg/api"
 	"github.com/reaport/ground-control/pkg/logger"
@@ -46,7 +48,32 @@ func main() {
 		logger.GlobalLogger.Fatal("failed to initialize graph map service", zap.Error(err))
 	}
 
-	ctrl := controller.New(service)
+	eventSender, err := eventsenderrmq.New(cfg.RabbitMQ)
+	if err != nil {
+		logger.GlobalLogger.Fatal("failed to initialize event sender", zap.Error(err))
+	}
+
+	airportMap, err := service.GetAirportMap(context.Background())
+	if err != nil {
+		logger.GlobalLogger.Fatal("failed to get airport map", zap.Error(err))
+	}
+
+	err = eventSender.SendEvent(context.Background(), &entity.Event{
+		Type: entity.GroundControlStartedEventType,
+		Data: entity.EventData{
+			"map": airportMap,
+		},
+	})
+	if err != nil {
+		logger.GlobalLogger.Error(
+			"failed to send event",
+			zap.Error(fmt.Errorf("c.eventSender.SendEvent: %w", err)),
+			zap.String("event_type", string(entity.GroundControlStartedEventType)),
+			zap.Any("map", airportMap),
+		)
+	}
+
+	ctrl := controller.New(service, eventSender)
 
 	server, err := api.NewServer(ctrl, api.WithErrorHandler(middlewares.ErrorHandler))
 	if err != nil {

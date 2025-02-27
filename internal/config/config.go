@@ -3,14 +3,16 @@ package config
 import (
 	"fmt"
 
+	eventsenderrmq "github.com/reaport/ground-control/internal/service/event-sender-rmq"
 	graphmap "github.com/reaport/ground-control/internal/service/graph-map"
 	"github.com/spf13/viper"
 )
 
 type Config struct {
-	Logger *LoggerConfig    `mapstructure:"logger"`
-	Server *ServerConfig    `mapstructure:"server"`
-	Map    *graphmap.Config `mapstructure:"map"`
+	Logger   *LoggerConfig          `mapstructure:"logger"`
+	Server   *ServerConfig          `mapstructure:"server"`
+	Map      *graphmap.Config       `mapstructure:"map"`
+	RabbitMQ *eventsenderrmq.Config `mapstructure:"rabbitmq"`
 }
 
 type LoggerConfig struct {

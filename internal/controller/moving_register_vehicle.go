@@ -60,5 +60,26 @@ func (c *Controller) MovingRegisterVehicle(
 		zap.Any("service_spots", vehicleInitInfo.ServiceSpots),
 	)
 
+	err = c.eventSender.SendEvent(ctx, &entity.Event{
+		Type: entity.VehicleRegisteredEventType,
+		Data: entity.EventData{
+			"vehicle_id":      vehicleInitInfo.VehicleID,
+			"vehicle_type":    params.Type,
+			"garrage_node_id": vehicleInitInfo.GarrageNodeID,
+			"service_spots":   vehicleInitInfo.ServiceSpots,
+		},
+	})
+	if err != nil {
+		logger.GlobalLogger.Error(
+			"failed to send event",
+			zap.Error(fmt.Errorf("c.eventSender.SendEvent: %w", err)),
+			zap.String("event_type", string(entity.VehicleRegisteredEventType)),
+			zap.String("vehicle_id", vehicleInitInfo.VehicleID),
+			zap.String("vehicle_type", string(params.Type)),
+			zap.String("garrage_node_id", vehicleInitInfo.GarrageNodeID),
+			zap.Any("service_spots", vehicleInitInfo.ServiceSpots),
+		)
+	}
+
 	return convert.VehicleInitInfoToAPI(vehicleInitInfo), nil
 }
