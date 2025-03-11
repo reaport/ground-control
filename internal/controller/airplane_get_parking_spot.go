@@ -46,6 +46,23 @@ func (c *Controller) AirplaneGetParkingSpot(
 		zap.String("node_id", nodeID),
 	)
 
+	err = c.eventSender.SendEvent(ctx, &entity.Event{
+		Type: entity.AirplaneGetParkingSpotEventType,
+		Data: entity.EventData{
+			"airplane_id": req.ID,
+			"node_id":     nodeID,
+		},
+	})
+	if err != nil {
+		logger.GlobalLogger.Error(
+			"failed to send event",
+			zap.Error(fmt.Errorf("c.eventSender.SendEvent: %w", err)),
+			zap.String("event_type", string(entity.AirplaneGetParkingSpotEventType)),
+			zap.String("airplane_id", req.ID),
+			zap.String("node_id", nodeID),
+		)
+	}
+
 	return &api.AirplaneGetParkingSpotOK{
 		NodeId: nodeID,
 	}, nil
