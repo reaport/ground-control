@@ -177,24 +177,60 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 						return
 					}
 					switch elem[0] {
-					case '/': // Prefix: "/refresh"
+					case '/': // Prefix: "/"
 						origElem := elem
-						if l := len("/refresh"); len(elem) >= l && elem[0:l] == "/refresh" {
+						if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
 							elem = elem[l:]
 						} else {
 							break
 						}
 
 						if len(elem) == 0 {
-							// Leaf node.
-							switch r.Method {
-							case "POST":
-								s.handleMapRefreshAirportMapRequest([0]string{}, elemIsEscaped, w, r)
-							default:
-								s.notAllowed(w, r, "POST")
+							break
+						}
+						switch elem[0] {
+						case 'c': // Prefix: "config"
+							origElem := elem
+							if l := len("config"); len(elem) >= l && elem[0:l] == "config" {
+								elem = elem[l:]
+							} else {
+								break
 							}
 
-							return
+							if len(elem) == 0 {
+								// Leaf node.
+								switch r.Method {
+								case "GET":
+									s.handleMapGetAirportMapConfigRequest([0]string{}, elemIsEscaped, w, r)
+								default:
+									s.notAllowed(w, r, "GET")
+								}
+
+								return
+							}
+
+							elem = origElem
+						case 'r': // Prefix: "refresh"
+							origElem := elem
+							if l := len("refresh"); len(elem) >= l && elem[0:l] == "refresh" {
+								elem = elem[l:]
+							} else {
+								break
+							}
+
+							if len(elem) == 0 {
+								// Leaf node.
+								switch r.Method {
+								case "POST":
+									s.handleMapRefreshAirportMapRequest([0]string{}, elemIsEscaped, w, r)
+								default:
+									s.notAllowed(w, r, "POST")
+								}
+
+								return
+							}
+
+							elem = origElem
 						}
 
 						elem = origElem
@@ -516,28 +552,68 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 						}
 					}
 					switch elem[0] {
-					case '/': // Prefix: "/refresh"
+					case '/': // Prefix: "/"
 						origElem := elem
-						if l := len("/refresh"); len(elem) >= l && elem[0:l] == "/refresh" {
+						if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
 							elem = elem[l:]
 						} else {
 							break
 						}
 
 						if len(elem) == 0 {
-							// Leaf node.
-							switch method {
-							case "POST":
-								r.name = MapRefreshAirportMapOperation
-								r.summary = "Возвращает карту к исходному состоянию"
-								r.operationID = "map_refreshAirportMap"
-								r.pathPattern = "/map/refresh"
-								r.args = args
-								r.count = 0
-								return r, true
-							default:
-								return
+							break
+						}
+						switch elem[0] {
+						case 'c': // Prefix: "config"
+							origElem := elem
+							if l := len("config"); len(elem) >= l && elem[0:l] == "config" {
+								elem = elem[l:]
+							} else {
+								break
 							}
+
+							if len(elem) == 0 {
+								// Leaf node.
+								switch method {
+								case "GET":
+									r.name = MapGetAirportMapConfigOperation
+									r.summary = "Получить конфигурацию карты аэропорта"
+									r.operationID = "map_getAirportMapConfig"
+									r.pathPattern = "/map/config"
+									r.args = args
+									r.count = 0
+									return r, true
+								default:
+									return
+								}
+							}
+
+							elem = origElem
+						case 'r': // Prefix: "refresh"
+							origElem := elem
+							if l := len("refresh"); len(elem) >= l && elem[0:l] == "refresh" {
+								elem = elem[l:]
+							} else {
+								break
+							}
+
+							if len(elem) == 0 {
+								// Leaf node.
+								switch method {
+								case "POST":
+									r.name = MapRefreshAirportMapOperation
+									r.summary = "Возвращает карту к исходному состоянию"
+									r.operationID = "map_refreshAirportMap"
+									r.pathPattern = "/map/refresh"
+									r.args = args
+									r.count = 0
+									return r, true
+								default:
+									return
+								}
+							}
+
+							elem = origElem
 						}
 
 						elem = origElem

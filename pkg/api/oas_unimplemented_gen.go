@@ -31,6 +31,15 @@ func (UnimplementedHandler) MapGetAirportMap(ctx context.Context) (r *AirportMap
 	return r, ht.ErrNotImplemented
 }
 
+// MapGetAirportMapConfig implements map_getAirportMapConfig operation.
+//
+// Возвращает конфигурацию аэропорта.
+//
+// GET /map/config
+func (UnimplementedHandler) MapGetAirportMapConfig(ctx context.Context) (r *AirportMapConfig, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // MapRefreshAirportMap implements map_refreshAirportMap operation.
 //
 // Возвращает карту к исходному состоянию.

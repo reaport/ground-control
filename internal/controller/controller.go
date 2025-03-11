@@ -11,6 +11,7 @@ type (
 		GetAirportMap(ctx context.Context) (*entity.AirportMap, error)
 		RefreshAirportMap(ctx context.Context) error
 		UpdateAirportMap(_ context.Context, airportMap *entity.AirportMap) error
+		GetAirportMapConfig(ctx context.Context) (*entity.AirportMapConfig, error)
 
 		RegisterVehicle(ctx context.Context, vehicleType entity.VehicleType) (*entity.VehicleInitInfo, error)
 		GetRoute(ctx context.Context, nodeIDFrom, nodeIDTo string, vehicleType entity.VehicleType) ([]string, error)

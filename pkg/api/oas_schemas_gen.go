@@ -59,6 +59,22 @@ func (s *AirportMap) SetEdges(val []Edge) {
 	s.Edges = val
 }
 
+// Ref: #/components/schemas/AirportMapConfig
+type AirportMapConfig struct {
+	// ID узла взлетно-посадочной полосы.
+	AirstripNodeId string `json:"airstripNodeId"`
+}
+
+// GetAirstripNodeId returns the value of AirstripNodeId.
+func (s *AirportMapConfig) GetAirstripNodeId() string {
+	return s.AirstripNodeId
+}
+
+// SetAirstripNodeId sets the value of AirstripNodeId.
+func (s *AirportMapConfig) SetAirstripNodeId(val string) {
+	s.AirstripNodeId = val
+}
+
 // Ref: #/components/schemas/Edge
 type Edge struct {
 	// ID начального узла.

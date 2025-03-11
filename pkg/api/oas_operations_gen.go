@@ -8,6 +8,7 @@ type OperationName = string
 const (
 	AirplaneGetParkingSpotOperation OperationName = "AirplaneGetParkingSpot"
 	MapGetAirportMapOperation       OperationName = "MapGetAirportMap"
+	MapGetAirportMapConfigOperation OperationName = "MapGetAirportMapConfig"
 	MapRefreshAirportMapOperation   OperationName = "MapRefreshAirportMap"
 	MapUpdateAirportMapOperation    OperationName = "MapUpdateAirportMap"
 	MovingGetRouteOperation         OperationName = "MovingGetRoute"

@@ -20,6 +20,12 @@ type Handler interface {
 	//
 	// GET /map
 	MapGetAirportMap(ctx context.Context) (*AirportMap, error)
+	// MapGetAirportMapConfig implements map_getAirportMapConfig operation.
+	//
+	// Возвращает конфигурацию аэропорта.
+	//
+	// GET /map/config
+	MapGetAirportMapConfig(ctx context.Context) (*AirportMapConfig, error)
 	// MapRefreshAirportMap implements map_refreshAirportMap operation.
 	//
 	// Возвращает карту к исходному состоянию.
