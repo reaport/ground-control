@@ -28,7 +28,7 @@ func InitLogger(level string, development bool) error {
 	config := zap.Config{
 		Level:            zap.NewAtomicLevelAt(loggerLevel),
 		Development:      development,
-		Encoding:         "json",
+		Encoding:         "console",
 		EncoderConfig:    zap.NewDevelopmentEncoderConfig(),
 		OutputPaths:      []string{"stdout"},
 		ErrorOutputPaths: []string{"stderr"},
