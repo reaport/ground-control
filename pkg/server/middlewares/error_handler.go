@@ -16,7 +16,7 @@ import (
 func ErrorHandler(ctx context.Context, w http.ResponseWriter, r *http.Request, err error) {
 	var (
 		httpStatusCode  int
-		response        interface{}
+		response        *ErrorResponse
 		validationErr   *validate.Error
 		decodeErr       *ogenerrors.DecodeRequestError
 		decodeParamsErr *ogenerrors.DecodeParamsError
@@ -26,12 +26,16 @@ func ErrorHandler(ctx context.Context, w http.ResponseWriter, r *http.Request, e
 	switch {
 	case errors.As(err, &validationErr):
 		response, httpStatusCode = getValidationErrorResponse(validationErr)
+		logger.GlobalLogger.Debug("validation error", zap.String("error", err.Error()), zap.Any("response", response))
 	case errors.As(err, &decodeErr):
 		response, httpStatusCode = getDecodeRequestError()
+		logger.GlobalLogger.Error("decode request error", zap.String("error", err.Error()), zap.Any("response", response))
 	case errors.As(err, &decodeParamsErr):
 		response, httpStatusCode = getDecodeParamsError(decodeParamsErr)
+		logger.GlobalLogger.Error("decode params error", zap.String("error", err.Error()), zap.Any("response", response))
 	case errors.As(err, &securityErr):
 		response, httpStatusCode = getSecurityError()
+		logger.GlobalLogger.Error("security error", zap.String("error", err.Error()), zap.Any("response", response))
 	default:
 		logInternalError(ctx, r, err)
 		httpStatusCode = http.StatusInternalServerError
@@ -42,7 +46,7 @@ func ErrorHandler(ctx context.Context, w http.ResponseWriter, r *http.Request, e
 		w.WriteHeader(httpStatusCode)
 		err = json.NewEncoder(w).Encode(response)
 		if err != nil {
-			logger.GlobalLogger.Warn("failed to encode error response", zap.Error(err))
+			logger.GlobalLogger.Warn("failed to encode error response", zap.String("error", err.Error()))
 		}
 		return
 	}
@@ -53,7 +57,7 @@ func ErrorHandler(ctx context.Context, w http.ResponseWriter, r *http.Request, e
 func logInternalError(_ context.Context, r *http.Request, err error) {
 	logger.GlobalLogger.Error(
 		"internal error",
-		zap.Error(err),
+		zap.String("error", err.Error()),
 		zap.String("requestURI", r.RequestURI),
 		zap.String("method", r.Method),
 	)

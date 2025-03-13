@@ -20,7 +20,7 @@ func (c *Controller) MapRefreshAirportMap(ctx context.Context) error {
 		err = fmt.Errorf("c.mapService.RefreshAirportMap: %w", err)
 		logger.GlobalLogger.Error(
 			"failed to refresh map",
-			zap.Error(err),
+			zap.String("error", err.Error()),
 		)
 		return err
 	}

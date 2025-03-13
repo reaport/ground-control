@@ -20,7 +20,7 @@ func (c *Controller) MapGetAirportMapConfig(ctx context.Context) (*api.AirportMa
 		err = fmt.Errorf("c.mapService.GetAirportMapConfig: %w", err)
 		logger.GlobalLogger.Error(
 			"failed to get airport map config",
-			zap.Error(err),
+			zap.String("error", err.Error()),
 		)
 		return nil, err
 	}

@@ -23,7 +23,7 @@ func (c *Controller) MapUpdateAirportMap(ctx context.Context, req *api.AirportMa
 		err = fmt.Errorf("convert.AirportMapFromAPI: %w", err)
 		logger.GlobalLogger.Error(
 			"failed to convert airport map from API",
-			zap.Error(err),
+			zap.String("error", err.Error()),
 			zap.Any("map", req),
 		)
 		return nil, err
@@ -35,7 +35,7 @@ func (c *Controller) MapUpdateAirportMap(ctx context.Context, req *api.AirportMa
 		if errors.Is(err, entity.ErrMapHasVehicles) {
 			logger.GlobalLogger.Error(
 				"map has vehicles",
-				zap.Error(err),
+				zap.String("error", err.Error()),
 				zap.Any("map", req),
 			)
 			return &api.ErrorResponse{
@@ -44,7 +44,7 @@ func (c *Controller) MapUpdateAirportMap(ctx context.Context, req *api.AirportMa
 		}
 		logger.GlobalLogger.Error(
 			"failed to update map",
-			zap.Error(err),
+			zap.String("error", err.Error()),
 			zap.Any("map", req),
 		)
 		return nil, err

@@ -143,7 +143,7 @@ func (s *Service) findGarageConnections(parkingNodeID string) (*entity.Node, *en
 
 func (s *Service) findAirstripForAirplane() (string, string, error) {
 	for _, node := range s.airportMap.Nodes {
-		if node.ID == airstripNodeID && len(node.Vehicles) == 0 {
+		if node.ID == airstripNodeID && (len(node.Vehicles) == 0 || node.Vehicles[0].Type == entity.VehicleTypeFollowMe) {
 			vehicleID := s.generateVehicleID(entity.VehicleTypeAirplane)
 			node.AddVehicle(entity.NewVehicle(vehicleID, entity.VehicleTypeAirplane))
 			return node.ID, vehicleID, nil

@@ -21,7 +21,7 @@ func (c *Controller) MapGetAirportMap(ctx context.Context) (*api.AirportMap, err
 		err = fmt.Errorf("c.mapService.GetAirportMap: %w", err)
 		logger.GlobalLogger.Error(
 			"failed to get airport map",
-			zap.Error(err),
+			zap.String("error", err.Error()),
 		)
 		return nil, err
 	}
@@ -31,7 +31,7 @@ func (c *Controller) MapGetAirportMap(ctx context.Context) (*api.AirportMap, err
 		err = fmt.Errorf("convert.AirportMapToAPI: %w", err)
 		logger.GlobalLogger.Error(
 			"failed to convert airport map to API",
-			zap.Error(err),
+			zap.String("error", err.Error()),
 		)
 		return nil, err
 	}
