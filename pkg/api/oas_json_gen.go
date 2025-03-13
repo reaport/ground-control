@@ -1233,13 +1233,20 @@ func (s *MovingRequestMoveReq) encodeFields(e *jx.Encoder) {
 		e.FieldStart("to")
 		e.Str(s.To)
 	}
+	{
+		if s.WithAirplane.Set {
+			e.FieldStart("withAirplane")
+			s.WithAirplane.Encode(e)
+		}
+	}
 }
 
-var jsonFieldsNameOfMovingRequestMoveReq = [4]string{
+var jsonFieldsNameOfMovingRequestMoveReq = [5]string{
 	0: "vehicleId",
 	1: "vehicleType",
 	2: "from",
 	3: "to",
+	4: "withAirplane",
 }
 
 // Decode decodes MovingRequestMoveReq from json.
@@ -1296,6 +1303,16 @@ func (s *MovingRequestMoveReq) Decode(d *jx.Decoder) error {
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"to\"")
+			}
+		case "withAirplane":
+			if err := func() error {
+				s.WithAirplane.Reset()
+				if err := s.WithAirplane.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"withAirplane\"")
 			}
 		default:
 			return d.Skip()

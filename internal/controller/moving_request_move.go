@@ -33,7 +33,12 @@ func (c *Controller) MovingRequestMove( //nolint:funlen // a lot of logs
 		return nil, err
 	}
 
-	distance, err := c.mapService.RequestMove(ctx, req.VehicleId, req.From, req.To, vehicleType)
+	var withAirplane *string
+	if req.WithAirplane.Set {
+		withAirplane = &req.WithAirplane.Value
+	}
+
+	distance, err := c.mapService.RequestMove(ctx, req.VehicleId, req.From, req.To, vehicleType, withAirplane)
 	if err != nil {
 		err = fmt.Errorf("c.mapService.RequestMove: %w", err)
 		switch {
@@ -45,6 +50,7 @@ func (c *Controller) MovingRequestMove( //nolint:funlen // a lot of logs
 				zap.String("from", req.From),
 				zap.String("to", req.To),
 				zap.String("vehicle_type", string(req.VehicleType)),
+				zap.String("with_airplane", req.WithAirplane.Value),
 			)
 			return &api.MovingRequestMoveNotFound{}, nil
 
@@ -56,6 +62,7 @@ func (c *Controller) MovingRequestMove( //nolint:funlen // a lot of logs
 				zap.String("from", req.From),
 				zap.String("to", req.To),
 				zap.String("vehicle_type", string(req.VehicleType)),
+				zap.String("with_airplane", req.WithAirplane.Value),
 			)
 			return &api.MovingRequestMoveForbidden{}, nil
 
@@ -67,6 +74,7 @@ func (c *Controller) MovingRequestMove( //nolint:funlen // a lot of logs
 				zap.String("from", req.From),
 				zap.String("to", req.To),
 				zap.String("vehicle_type", string(req.VehicleType)),
+				zap.String("with_airplane", req.WithAirplane.Value),
 			)
 			return &api.ErrorResponse{
 				Code: api.ErrorResponseCodeVEHICLENOTFOUNDINNODE,
@@ -80,6 +88,7 @@ func (c *Controller) MovingRequestMove( //nolint:funlen // a lot of logs
 				zap.String("from", req.From),
 				zap.String("to", req.To),
 				zap.String("vehicle_type", string(req.VehicleType)),
+				zap.String("with_airplane", req.WithAirplane.Value),
 			)
 			return &api.ErrorResponse{
 				Code: api.ErrorResponseCodeEDGENOTFOUND,
@@ -93,6 +102,7 @@ func (c *Controller) MovingRequestMove( //nolint:funlen // a lot of logs
 				zap.String("from", req.From),
 				zap.String("to", req.To),
 				zap.String("vehicle_type", string(req.VehicleType)),
+				zap.String("with_airplane", req.WithAirplane.Value),
 			)
 			return &api.MovingRequestMoveConflict{}, nil
 
@@ -104,6 +114,7 @@ func (c *Controller) MovingRequestMove( //nolint:funlen // a lot of logs
 				zap.String("from", req.From),
 				zap.String("to", req.To),
 				zap.String("vehicle_type", string(req.VehicleType)),
+				zap.String("with_airplane", req.WithAirplane.Value),
 			)
 			return nil, err
 		}
@@ -115,17 +126,19 @@ func (c *Controller) MovingRequestMove( //nolint:funlen // a lot of logs
 		zap.String("from", req.From),
 		zap.String("to", req.To),
 		zap.String("vehicle_type", string(req.VehicleType)),
+		zap.String("with_airplane", req.WithAirplane.Value),
 		zap.Float64("distance", distance),
 	)
 
 	err = c.eventSender.SendEvent(ctx, &entity.Event{
 		Type: entity.VehicleLeftNodeEventType,
 		Data: entity.EventData{
-			"vehicle_id":   req.VehicleId,
-			"vehicle_type": string(req.VehicleType),
-			"from":         req.From,
-			"to":           req.To,
-			"distance":     distance,
+			"vehicle_id":    req.VehicleId,
+			"vehicle_type":  string(req.VehicleType),
+			"from":          req.From,
+			"to":            req.To,
+			"distance":      distance,
+			"with_airplane": req.WithAirplane.Value,
 		},
 	})
 	if err != nil {
@@ -137,6 +150,7 @@ func (c *Controller) MovingRequestMove( //nolint:funlen // a lot of logs
 			zap.String("from", req.From),
 			zap.String("to", req.To),
 			zap.Float64("distance", distance),
+			zap.String("with_airplane", req.WithAirplane.Value),
 		)
 	}
 

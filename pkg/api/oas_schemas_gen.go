@@ -403,6 +403,8 @@ type MovingRequestMoveReq struct {
 	From string `json:"from"`
 	// ID следующего узла.
 	To string `json:"to"`
+	// ID самолета, который следует за follow-me.
+	WithAirplane OptString `json:"withAirplane"`
 }
 
 // GetVehicleId returns the value of VehicleId.
@@ -425,6 +427,11 @@ func (s *MovingRequestMoveReq) GetTo() string {
 	return s.To
 }
 
+// GetWithAirplane returns the value of WithAirplane.
+func (s *MovingRequestMoveReq) GetWithAirplane() OptString {
+	return s.WithAirplane
+}
+
 // SetVehicleId sets the value of VehicleId.
 func (s *MovingRequestMoveReq) SetVehicleId(val string) {
 	s.VehicleId = val
@@ -443,6 +450,11 @@ func (s *MovingRequestMoveReq) SetFrom(val string) {
 // SetTo sets the value of To.
 func (s *MovingRequestMoveReq) SetTo(val string) {
 	s.To = val
+}
+
+// SetWithAirplane sets the value of WithAirplane.
+func (s *MovingRequestMoveReq) SetWithAirplane(val OptString) {
+	s.WithAirplane = val
 }
 
 // Ref: #/components/schemas/Node

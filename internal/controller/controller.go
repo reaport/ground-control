@@ -20,6 +20,7 @@ type (
 			vehicleID string,
 			nodeIDFrom, nodeIDTo string,
 			vehicleType entity.VehicleType,
+			withAirplane *string,
 		) (float64, error)
 		NotifyArrival(ctx context.Context, nodeID string, vehicleID string) error
 
