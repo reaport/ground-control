@@ -3,7 +3,6 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "/admin",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -12,6 +11,7 @@
     "generate-api": "export $(cat .env | xargs) && npx openapi-typescript-codegen --input https://raw.githubusercontent.com/reaport/docs/$OPENAPI_VERSION/openAPI/ground_control.yaml --output src/api --client fetch"
   },
   "dependencies": {
+    "@radix-ui/react-checkbox": "^1.1.4",
     "@radix-ui/react-dialog": "^1.1.6",
     "@radix-ui/react-popover": "^1.1.6",
     "@radix-ui/react-select": "^2.1.6",

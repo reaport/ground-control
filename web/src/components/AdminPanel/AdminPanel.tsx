@@ -8,12 +8,15 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { PacmanLoader } from "react-spinners";
 
 const AdminPanel = () => {
+  const [activeTab, setActiveTab] = useState("graph");
+  const [refreshInterval, setRefreshInterval] = useState<number | null>(1000);
+  const [autoRefresh, setAutoRefresh] = useState(false);
+
   const { data: map, refetch: refetchMap } = useQuery({
     queryKey: ["airportMap"],
     queryFn: MapService.mapGetAirportMap,
+    refetchInterval: autoRefresh ? refreshInterval || 5000 : false,
   });
-
-  const [activeTab, setActiveTab] = useState("graph");
 
   return (
     <div className="p-4">
@@ -24,7 +27,33 @@ const AdminPanel = () => {
               <TabsTrigger value="graph">Airport Graph</TabsTrigger>
               <TabsTrigger value="control">Transport Control</TabsTrigger>
             </div>
-            <Button onClick={() => refetchMap()}>Refetch</Button>
+            <div className="flex space-x-4 items-center">
+              <Button onClick={() => refetchMap()}>Refetch</Button>
+              <label className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  checked={autoRefresh}
+                  onChange={() => setAutoRefresh(!autoRefresh)}
+                />
+                <span>Auto-refresh</span>
+              </label>
+              {autoRefresh && (
+                <input
+                  type="number"
+                  className="border rounded px-2 py-1 w-24"
+                  value={refreshInterval || ""}
+                  onChange={(e) =>
+                    setRefreshInterval(
+                      e.target.value ? Number(e.target.value) : null
+                    )
+                  }
+                  min={1000}
+                  step={1000}
+                  placeholder="Interval"
+                  disabled={!autoRefresh}
+                />
+              )}
+            </div>
           </TabsList>
 
           <TabsContent value="graph">
