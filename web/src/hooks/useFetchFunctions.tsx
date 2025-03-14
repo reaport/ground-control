@@ -7,9 +7,12 @@ import {
   MovingService,
   VehicleType,
 } from "@/api";
-import { useMutation, UseMutationResult } from "@tanstack/react-query";
+import {
+  useMutation,
+  UseMutationResult,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { useState } from "react";
-import { useSonner } from "sonner";
 
 type UseFetchFunctionsResult = {
   getMapMutation: UseMutationResult<AirportMap, Error, void, unknown>;
@@ -72,8 +75,9 @@ type UseFetchFunctionsResult = {
 };
 
 export const useFetchFunctions = (): UseFetchFunctionsResult => {
+  const queryClient = useQueryClient();
+
   const [result, setResult] = useState<string | null>(" ");
-  const { toasts } = useSonner();
 
   const getMapMutation = useMutation({
     mutationFn: () => MapService.mapGetAirportMap(),
@@ -83,7 +87,10 @@ export const useFetchFunctions = (): UseFetchFunctionsResult => {
 
   const updateMapMutation = useMutation({
     mutationFn: (data: AirportMap) => MapService.mapUpdateAirportMap(data),
-    onSuccess: () => setResult(null),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["airportMap"] });
+      return setResult(null);
+    },
     onError: (error) => setResult(`Ошибка: ${error}`),
   });
 
@@ -101,7 +108,10 @@ export const useFetchFunctions = (): UseFetchFunctionsResult => {
       from: string;
       to: string;
     }) => MovingService.movingRequestMove(data),
-    onSuccess: (data) => setResult(JSON.stringify(data, null, 2)),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["airportMap"] });
+      return setResult(JSON.stringify(data, null, 2));
+    },
     onError: (error) => setResult(`Ошибка: ${error.message}`),
   });
 
@@ -118,19 +128,28 @@ export const useFetchFunctions = (): UseFetchFunctionsResult => {
   const registerVehicleMutation = useMutation({
     mutationFn: (type: VehicleType) =>
       MovingService.movingRegisterVehicle(type),
-    onSuccess: (data) => setResult(JSON.stringify(data, null, 2)),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["airportMap"] });
+      return setResult(JSON.stringify(data, null, 2));
+    },
     onError: (error) => setResult(`Ошибка: ${error.message}`),
   });
 
   const takeOffMutation = useMutation({
     mutationFn: (id: string) => AirplaneService.airplaneTakeOff(id),
-    onSuccess: () => setResult(null),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["airportMap"] });
+      return setResult(null);
+    },
     onError: (error) => setResult(`Ошибка: ${error.message}`),
   });
 
   const refreshMapMutation = useMutation({
     mutationFn: () => MapService.mapRefreshAirportMap(),
-    onSuccess: () => setResult(null),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["airportMap"] });
+      return setResult(null);
+    },
     onError: (error) => setResult(`Ошибка: ${error.message}`),
   });
 

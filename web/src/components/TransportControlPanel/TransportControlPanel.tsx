@@ -15,9 +15,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Command,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 import { AirportMap, VehicleType } from "@/api";
 import { useFetchFunctions } from "@/hooks/useFetchFunctions";
 import { PacmanLoader } from "react-spinners";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 
 interface TransportControlPanelProps {
   airportMap: AirportMap;
@@ -88,36 +95,7 @@ const TransportControlPanel: React.FC<TransportControlPanelProps> = ({
         </CardHeader>
         <CardContent>
           <Select
-            onValueChange={(value) => setVehicleType(value as VehicleType)}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Выберите тип транспорта" />
-            </SelectTrigger>
-            <SelectContent>
-            <SelectItem value={VehicleType.AIRPLANE}>Самолет</SelectItem>
-              <SelectItem value={VehicleType.CATERING}>Кейтеринг</SelectItem>
-              <SelectItem value={VehicleType.REFUELING}>Заправка</SelectItem>
-              <SelectItem value={VehicleType.CLEANING}>Уборка</SelectItem>
-              <SelectItem value={VehicleType.BAGGAGE}>Багаж</SelectItem>
-              <SelectItem value={VehicleType.FOLLOW_ME}>Follow-me</SelectItem>
-              <SelectItem value={VehicleType.CHARGING}>Зарядка</SelectItem>
-              <SelectItem value={VehicleType.BUS}>Автобус</SelectItem>
-              <SelectItem value={VehicleType.RAMP}>Платформа</SelectItem>
-            </SelectContent>
-          </Select>
-        </CardContent>
-        <CardFooter>
-          <Button onClick={() => registerVehicleMutation.mutate(vehicleType)}>
-            Зарегистрировать транспорт
-          </Button>
-        </CardFooter>
-      </Card>
-      <Card className="flex flex-col h-full">
-        <CardHeader>
-          <CardTitle>Запрос маршрута</CardTitle>
-        </CardHeader>
-        <CardContent className="flex-grow">
-          <Select
+            value={vehicleType}
             onValueChange={(value) => setVehicleType(value as VehicleType)}
           >
             <SelectTrigger>
@@ -135,18 +113,66 @@ const TransportControlPanel: React.FC<TransportControlPanelProps> = ({
               <SelectItem value={VehicleType.RAMP}>Платформа</SelectItem>
             </SelectContent>
           </Select>
-          <Input
-            placeholder="Откуда"
-            value={from}
-            onChange={(e) => setFrom(e.target.value)}
-          />
-          <Input
-            placeholder="Куда"
-            value={to}
-            onChange={(e) => setTo(e.target.value)}
-          />
         </CardContent>
-        <CardFooter className="mt-auto">
+        <CardFooter>
+          <Button onClick={() => registerVehicleMutation.mutate(vehicleType)}>
+            Зарегистрировать транспорт
+          </Button>
+        </CardFooter>
+      </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>Запрос маршрута</CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-2">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className="w-full text-left">
+                {from || "Откуда"}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-full p-0">
+              <Command>
+                <CommandInput placeholder="Поиск..." />
+                <CommandList>
+                  {airportMap.nodes.map((node) => (
+                    <CommandItem
+                      key={node.id}
+                      value={node.id}
+                      onSelect={() => setFrom(node.id)}
+                    >
+                      {node.id}
+                    </CommandItem>
+                  ))}
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className="w-full text-left">
+                {to || "Куда"}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-full p-0">
+              <Command>
+                <CommandInput placeholder="Поиск..." />
+                <CommandList>
+                  {airportMap.nodes.map((node) => (
+                    <CommandItem
+                      key={node.id}
+                      value={node.id}
+                      onSelect={() => setTo(node.id)}
+                    >
+                      {node.id}
+                    </CommandItem>
+                  ))}
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
+        </CardContent>
+        <CardFooter>
           <Button
             onClick={() =>
               getRouteMutation.mutate({ from, to, type: vehicleType })
@@ -156,26 +182,63 @@ const TransportControlPanel: React.FC<TransportControlPanelProps> = ({
           </Button>
         </CardFooter>
       </Card>
+
       <Card>
         <CardHeader>
           <CardTitle>Разрешение на перемещение</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="flex flex-col gap-2">
           <Input
             placeholder="ID транспорта"
             value={vehicleId}
             onChange={(e) => setVehicleId(e.target.value)}
           />
-          <Input
-            placeholder="Откуда"
-            value={from}
-            onChange={(e) => setFrom(e.target.value)}
-          />
-          <Input
-            placeholder="Куда"
-            value={to}
-            onChange={(e) => setTo(e.target.value)}
-          />
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className="w-full text-left">
+                {from || "Откуда"}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-full p-0">
+              <Command>
+                <CommandInput placeholder="Поиск..." />
+                <CommandList>
+                  {airportMap.nodes.map((node) => (
+                    <CommandItem
+                      key={node.id}
+                      value={node.id}
+                      onSelect={() => setFrom(node.id)}
+                    >
+                      {node.id}
+                    </CommandItem>
+                  ))}
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className="w-full text-left">
+                {to || "Куда"}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-full p-0">
+              <Command>
+                <CommandInput placeholder="Поиск..." />
+                <CommandList>
+                  {airportMap.nodes.map((node) => (
+                    <CommandItem
+                      key={node.id}
+                      value={node.id}
+                      onSelect={() => setTo(node.id)}
+                    >
+                      {node.id}
+                    </CommandItem>
+                  ))}
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
         </CardContent>
         <CardFooter>
           <Button
@@ -187,21 +250,40 @@ const TransportControlPanel: React.FC<TransportControlPanelProps> = ({
           </Button>
         </CardFooter>
       </Card>
+
       <Card>
         <CardHeader>
           <CardTitle>Уведомление о прибытии</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="flex flex-col gap-2">
           <Input
             placeholder="ID транспорта"
             value={vehicleId}
             onChange={(e) => setVehicleId(e.target.value)}
           />
-          <Input
-            placeholder="ID узла"
-            value={nodeId}
-            onChange={(e) => setNodeId(e.target.value)}
-          />
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className="w-full text-left">
+                {nodeId || "ID узла"}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-full p-0">
+              <Command>
+                <CommandInput placeholder="Поиск..." />
+                <CommandList>
+                  {airportMap.nodes.map((node) => (
+                    <CommandItem
+                      key={node.id}
+                      value={node.id}
+                      onSelect={() => setNodeId(node.id)}
+                    >
+                      {node.id}
+                    </CommandItem>
+                  ))}
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
         </CardContent>
         <CardFooter>
           <Button
@@ -213,6 +295,7 @@ const TransportControlPanel: React.FC<TransportControlPanelProps> = ({
           </Button>
         </CardFooter>
       </Card>
+
       <Card>
         <CardHeader>
           <CardTitle>Парковочное место</CardTitle>
@@ -235,12 +318,9 @@ const TransportControlPanel: React.FC<TransportControlPanelProps> = ({
         <CardHeader>
           <CardTitle>Получение конфигурации</CardTitle>
         </CardHeader>
-        <CardContent>
-        </CardContent>
+        <CardContent></CardContent>
         <CardFooter>
-          <Button onClick={() => getConfigMutation.mutate()}>
-            Получить
-          </Button>
+          <Button onClick={() => getConfigMutation.mutate()}>Получить</Button>
         </CardFooter>
       </Card>
 
