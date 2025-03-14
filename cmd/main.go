@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"path/filepath"
 	"syscall"
 	"time"
 
@@ -80,20 +79,6 @@ func main() {
 
 	httpServer.Handler = CORSMiddleware(httpServer.Handler)
 
-	staticDir := "./web/build"
-	fs := http.FileServer(http.Dir(staticDir))
-
-	http.Handle("/admin/", http.StripPrefix("/admin", fs))
-
-	http.HandleFunc("/admin", func(w http.ResponseWriter, r *http.Request) {
-		indexPath := filepath.Join(staticDir, "index.html")
-		if _, err := os.Stat(indexPath); os.IsNotExist(err) {
-			http.NotFound(w, r)
-			return
-		}
-		http.ServeFile(w, r, indexPath)
-	})
-
 	done := make(chan os.Signal, 1)
 	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 
@@ -119,14 +104,12 @@ func main() {
 	}
 }
 
-// CORSMiddleware добавляет заголовки CORS для кросс-доменных запросов
 func CORSMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 
-		// Обрабатываем preflight-запросы (OPTIONS)
 		if r.Method == http.MethodOptions {
 			w.WriteHeader(http.StatusOK)
 			return

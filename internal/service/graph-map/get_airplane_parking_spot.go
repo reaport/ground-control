@@ -18,7 +18,7 @@ func (s *Service) GetAirplaneParkingSpot(_ context.Context, airplaneID string) (
 	for _, node := range s.airportMap.Nodes {
 		if strings.HasPrefix(node.ID, parkingPrefix) {
 			parts := strings.Split(node.ID, "_")
-			if len(parts) != 2 { //nolint:govet // known issue
+			if len(parts) != 2 { //nolint:mnd // known issue
 				continue
 			}
 
