@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"syscall"
 	"time"
 
@@ -53,23 +54,14 @@ func main() {
 		logger.GlobalLogger.Fatal("failed to initialize event sender", zap.String("error", err.Error()))
 	}
 
-	airportMap, err := service.GetAirportMap(context.Background())
-	if err != nil {
-		logger.GlobalLogger.Fatal("failed to get airport map", zap.String("error", err.Error()))
-	}
-
 	err = eventSender.SendEvent(context.Background(), &entity.Event{
-		Type: entity.GroundControlStartedEventType,
-		Data: entity.EventData{
-			"map": airportMap,
-		},
+		Type: entity.MapRefreshedEventType,
 	})
 	if err != nil {
 		logger.GlobalLogger.Error(
 			"failed to send event",
 			zap.Error(fmt.Errorf("c.eventSender.SendEvent: %w", err)),
-			zap.String("event_type", string(entity.GroundControlStartedEventType)),
-			zap.Any("map", airportMap),
+			zap.String("event_type", string(entity.MapRefreshedEventType)),
 		)
 	}
 
@@ -85,6 +77,22 @@ func main() {
 		ReadHeaderTimeout: time.Duration(cfg.Server.ReadHeaderTimeout) * time.Second,
 		Handler:           server,
 	}
+
+	httpServer.Handler = CORSMiddleware(httpServer.Handler)
+
+	staticDir := "./web/build"
+	fs := http.FileServer(http.Dir(staticDir))
+
+	http.Handle("/admin/", http.StripPrefix("/admin", fs))
+
+	http.HandleFunc("/admin", func(w http.ResponseWriter, r *http.Request) {
+		indexPath := filepath.Join(staticDir, "index.html")
+		if _, err := os.Stat(indexPath); os.IsNotExist(err) {
+			http.NotFound(w, r)
+			return
+		}
+		http.ServeFile(w, r, indexPath)
+	})
 
 	done := make(chan os.Signal, 1)
 	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
@@ -109,4 +117,21 @@ func main() {
 	} else {
 		logger.GlobalLogger.Info("server shutdown completed")
 	}
+}
+
+// CORSMiddleware добавляет заголовки CORS для кросс-доменных запросов
+func CORSMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+
+		// Обрабатываем preflight-запросы (OPTIONS)
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
 }
