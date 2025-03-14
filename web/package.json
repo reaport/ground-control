@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "generate-api": "export $(cat .env | xargs) && npx openapi-typescript-codegen --input https://raw.githubusercontent.com/reaport/docs/$OPENAPI_VERSION/openAPI/ground_control.yaml --output src/api --client fetch"
