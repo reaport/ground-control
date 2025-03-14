@@ -33,4 +33,25 @@ export class AirplaneService {
             },
         });
     }
+    /**
+     * Фиксация вылета самолета
+     * Удаляется самолет с карты
+     * @param id ID самолета
+     * @returns any Самолет улетел
+     * @throws ApiError
+     */
+    public static airplaneTakeOff(
+        id: string,
+    ): CancelablePromise<any> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/airplane/{id}/take-off',
+            path: {
+                'id': id,
+            },
+            errors: {
+                404: `Самолет не найден на ВПП`,
+            },
+        });
+    }
 }

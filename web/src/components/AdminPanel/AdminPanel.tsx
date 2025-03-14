@@ -1,6 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { MapService } from "../../api";
-import AirportGraph from "../AirportGraph/AirportGraph";
+// import AirportGraph from "../AirportGraph/AirportGraph";
+import TransportControlPanel from "../TransportControlPanel/TransportControlPanel";
+import { Button } from "@/components/ui/button";
+import { Toaster } from "sonner";
 
 const AdminPanel = () => {
   const { data: map, refetch: refetchMap } = useQuery({
@@ -10,8 +13,10 @@ const AdminPanel = () => {
 
   return (
     <pre>
-      <button onClick={() => refetchMap()}>Refetch</button>
-      {map! && <AirportGraph data={map} />}
+      <Button onClick={() => refetchMap()}>Refetch</Button>
+      {/* {map! && <AirportGraph data={map} />} */}
+      {map! && <TransportControlPanel airportMap={map}/>}
+      <Toaster />
     </pre>
   );
 };

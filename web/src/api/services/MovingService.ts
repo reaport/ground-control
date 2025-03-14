@@ -62,6 +62,10 @@ export class MovingService {
              * ID следующего узла
              */
             to: string;
+            /**
+             * ID самолета, который следует за follow-me
+             */
+            withAirplane?: string;
         },
     ): CancelablePromise<{
         /**
