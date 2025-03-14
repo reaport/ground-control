@@ -11,6 +11,7 @@ const (
 	VehicleArrivedEventType         EventType = "vehicle_arrived"
 	VehicleRegisteredEventType      EventType = "vehicle_registered"
 	VehicleLeftNodeEventType        EventType = "vehicle_left_node"
+	AirplaneTakeOffEventType        EventType = "airplane_take_off"
 )
 
 type EventData map[string]interface{}

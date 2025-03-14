@@ -46,5 +46,20 @@ func (c *Controller) AirplaneTakeOff(
 		zap.String("airplane_id", params.ID),
 	)
 
+	err = c.eventSender.SendEvent(ctx, &entity.Event{
+		Type: entity.AirplaneTakeOffEventType,
+		Data: entity.EventData{
+			"airplane_id": params.ID,
+		},
+	})
+	if err != nil {
+		logger.GlobalLogger.Error(
+			"failed to send event",
+			zap.Error(fmt.Errorf("c.eventSender.SendEvent: %w", err)),
+			zap.String("event_type", string(entity.AirplaneTakeOffEventType)),
+			zap.String("airplane_id", params.ID),
+		)
+	}
+
 	return &api.AirplaneTakeOffOK{}, nil
 }
