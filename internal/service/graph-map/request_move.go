@@ -15,7 +15,10 @@ func (s *Service) RequestMove(
 	withAirplane *string,
 ) (float64, error) {
 	if vehicleType != entity.VehicleTypeFollowMe && withAirplane != nil {
-		return 0, fmt.Errorf("%w: withAirplane is not supported for vehicle type %s", entity.ErrInvalidVehicleType, vehicleType)
+		return 0, fmt.Errorf(
+			"%w: withAirplane is not supported for vehicle type %s",
+			entity.ErrInvalidVehicleType, vehicleType,
+		)
 	}
 
 	s.mapMutex.Lock()
@@ -71,9 +74,8 @@ func (s *Service) RequestMove(
 		return 0, fmt.Errorf("%w: cannot move vehicle %s to node %s", entity.ErrMoveNotAllowed, vehicleID, nodeIDTo)
 	}
 
-	
 	nodeFrom.RemoveVehicle(vehicleID)
-	
+
 	if !isDuplicate {
 		nodeTo.AddVehicle(entity.NewVehicle(vehicleID, vehicleType))
 	}

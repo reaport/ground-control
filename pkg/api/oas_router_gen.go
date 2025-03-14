@@ -94,26 +94,64 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 						break
 					}
 					switch elem[0] {
-					case '/': // Prefix: "/parking"
+					case '/': // Prefix: "/"
 						origElem := elem
-						if l := len("/parking"); len(elem) >= l && elem[0:l] == "/parking" {
+						if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
 							elem = elem[l:]
 						} else {
 							break
 						}
 
 						if len(elem) == 0 {
-							// Leaf node.
-							switch r.Method {
-							case "GET":
-								s.handleAirplaneGetParkingSpotRequest([1]string{
-									args[0],
-								}, elemIsEscaped, w, r)
-							default:
-								s.notAllowed(w, r, "GET")
+							break
+						}
+						switch elem[0] {
+						case 'p': // Prefix: "parking"
+							origElem := elem
+							if l := len("parking"); len(elem) >= l && elem[0:l] == "parking" {
+								elem = elem[l:]
+							} else {
+								break
 							}
 
-							return
+							if len(elem) == 0 {
+								// Leaf node.
+								switch r.Method {
+								case "GET":
+									s.handleAirplaneGetParkingSpotRequest([1]string{
+										args[0],
+									}, elemIsEscaped, w, r)
+								default:
+									s.notAllowed(w, r, "GET")
+								}
+
+								return
+							}
+
+							elem = origElem
+						case 't': // Prefix: "take-off"
+							origElem := elem
+							if l := len("take-off"); len(elem) >= l && elem[0:l] == "take-off" {
+								elem = elem[l:]
+							} else {
+								break
+							}
+
+							if len(elem) == 0 {
+								// Leaf node.
+								switch r.Method {
+								case "POST":
+									s.handleAirplaneTakeOffRequest([1]string{
+										args[0],
+									}, elemIsEscaped, w, r)
+								default:
+									s.notAllowed(w, r, "POST")
+								}
+
+								return
+							}
+
+							elem = origElem
 						}
 
 						elem = origElem
@@ -453,28 +491,68 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 						break
 					}
 					switch elem[0] {
-					case '/': // Prefix: "/parking"
+					case '/': // Prefix: "/"
 						origElem := elem
-						if l := len("/parking"); len(elem) >= l && elem[0:l] == "/parking" {
+						if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
 							elem = elem[l:]
 						} else {
 							break
 						}
 
 						if len(elem) == 0 {
-							// Leaf node.
-							switch method {
-							case "GET":
-								r.name = AirplaneGetParkingSpotOperation
-								r.summary = "Получение свободного места парковки для самолета"
-								r.operationID = "airplane_getParkingSpot"
-								r.pathPattern = "/airplane/{id}/parking"
-								r.args = args
-								r.count = 1
-								return r, true
-							default:
-								return
+							break
+						}
+						switch elem[0] {
+						case 'p': // Prefix: "parking"
+							origElem := elem
+							if l := len("parking"); len(elem) >= l && elem[0:l] == "parking" {
+								elem = elem[l:]
+							} else {
+								break
 							}
+
+							if len(elem) == 0 {
+								// Leaf node.
+								switch method {
+								case "GET":
+									r.name = AirplaneGetParkingSpotOperation
+									r.summary = "Получение свободного места парковки для самолета"
+									r.operationID = "airplane_getParkingSpot"
+									r.pathPattern = "/airplane/{id}/parking"
+									r.args = args
+									r.count = 1
+									return r, true
+								default:
+									return
+								}
+							}
+
+							elem = origElem
+						case 't': // Prefix: "take-off"
+							origElem := elem
+							if l := len("take-off"); len(elem) >= l && elem[0:l] == "take-off" {
+								elem = elem[l:]
+							} else {
+								break
+							}
+
+							if len(elem) == 0 {
+								// Leaf node.
+								switch method {
+								case "POST":
+									r.name = AirplaneTakeOffOperation
+									r.summary = "Фиксация вылета самолета"
+									r.operationID = "airplane_takeOff"
+									r.pathPattern = "/airplane/{id}/take-off"
+									r.args = args
+									r.count = 1
+									return r, true
+								default:
+									return
+								}
+							}
+
+							elem = origElem
 						}
 
 						elem = origElem

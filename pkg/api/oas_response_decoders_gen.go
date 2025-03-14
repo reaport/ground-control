@@ -61,6 +61,18 @@ func decodeAirplaneGetParkingSpotResponse(resp *http.Response) (res AirplaneGetP
 	return res, validate.UnexpectedStatusCode(resp.StatusCode)
 }
 
+func decodeAirplaneTakeOffResponse(resp *http.Response) (res AirplaneTakeOffRes, _ error) {
+	switch resp.StatusCode {
+	case 200:
+		// Code 200.
+		return &AirplaneTakeOffOK{}, nil
+	case 404:
+		// Code 404.
+		return &AirplaneTakeOffNotFound{}, nil
+	}
+	return res, validate.UnexpectedStatusCode(resp.StatusCode)
+}
+
 func decodeMapGetAirportMapResponse(resp *http.Response) (res *AirportMap, _ error) {
 	switch resp.StatusCode {
 	case 200:

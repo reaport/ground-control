@@ -6,11 +6,11 @@ import (
 	"github.com/reaport/ground-control/internal/entity"
 )
 
-func (s *Service) GetAirportMapConfig(ctx context.Context) (*entity.AirportMapConfig, error) {
+func (s *Service) GetAirportMapConfig(_ context.Context) (*entity.AirportMapConfig, error) {
 	for _, node := range s.airportMap.Nodes {
 		if node.ID == airstripNodeID {
 			return &entity.AirportMapConfig{
-				AirstripNodeId: node.ID,
+				AirstripNodeID: node.ID,
 			}, nil
 		}
 	}

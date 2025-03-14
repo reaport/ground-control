@@ -25,6 +25,7 @@ type (
 		NotifyArrival(ctx context.Context, nodeID string, vehicleID string) error
 
 		GetAirplaneParkingSpot(ctx context.Context, airplaneID string) (string, error)
+		TakeOffAirplane(ctx context.Context, airplaneID string) error
 	}
 
 	EventSender interface {

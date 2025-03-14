@@ -26,6 +26,6 @@ func (c *Controller) MapGetAirportMapConfig(ctx context.Context) (*api.AirportMa
 	}
 
 	return &api.AirportMapConfig{
-		AirstripNodeId: airportMapConfig.AirstripNodeId,
+		AirstripNodeId: airportMapConfig.AirstripNodeID,
 	}, nil
 }

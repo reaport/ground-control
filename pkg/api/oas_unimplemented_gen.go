@@ -22,6 +22,15 @@ func (UnimplementedHandler) AirplaneGetParkingSpot(ctx context.Context, params A
 	return r, ht.ErrNotImplemented
 }
 
+// AirplaneTakeOff implements airplane_takeOff operation.
+//
+// Удаляется самолет с карты.
+//
+// POST /airplane/{id}/take-off
+func (UnimplementedHandler) AirplaneTakeOff(ctx context.Context, params AirplaneTakeOffParams) (r AirplaneTakeOffRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // MapGetAirportMap implements map_getAirportMap operation.
 //
 // Возвращает полную карту аэропорта в виде графа.

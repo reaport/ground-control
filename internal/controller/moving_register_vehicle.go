@@ -35,7 +35,8 @@ func (c *Controller) MovingRegisterVehicle(
 	vehicleInitInfo, err := c.mapService.RegisterVehicle(ctx, vehicleType)
 	if err != nil {
 		err = fmt.Errorf("c.mapService.RegisterVehicle: %w", err)
-		if errors.Is(err, entity.ErrAirstripIsFull) {
+		if errors.Is(err, entity.ErrAirstripIsFull) ||
+			errors.Is(err, entity.ErrAirstripNotFound) {
 			logger.GlobalLogger.Error(
 				"airstrip is full",
 				zap.String("error", err.Error()),

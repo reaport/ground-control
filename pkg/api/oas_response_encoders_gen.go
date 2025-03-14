@@ -43,6 +43,25 @@ func encodeAirplaneGetParkingSpotResponse(response AirplaneGetParkingSpotRes, w 
 	}
 }
 
+func encodeAirplaneTakeOffResponse(response AirplaneTakeOffRes, w http.ResponseWriter, span trace.Span) error {
+	switch response := response.(type) {
+	case *AirplaneTakeOffOK:
+		w.WriteHeader(200)
+		span.SetStatus(codes.Ok, http.StatusText(200))
+
+		return nil
+
+	case *AirplaneTakeOffNotFound:
+		w.WriteHeader(404)
+		span.SetStatus(codes.Error, http.StatusText(404))
+
+		return nil
+
+	default:
+		return errors.Errorf("unexpected response type: %T", response)
+	}
+}
+
 func encodeMapGetAirportMapResponse(response *AirportMap, w http.ResponseWriter, span trace.Span) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)

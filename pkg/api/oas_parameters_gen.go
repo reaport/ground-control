@@ -81,6 +81,72 @@ func decodeAirplaneGetParkingSpotParams(args [1]string, argsEscaped bool, r *htt
 	return params, nil
 }
 
+// AirplaneTakeOffParams is parameters of airplane_takeOff operation.
+type AirplaneTakeOffParams struct {
+	// ID самолета.
+	ID string
+}
+
+func unpackAirplaneTakeOffParams(packed middleware.Parameters) (params AirplaneTakeOffParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "id",
+			In:   "path",
+		}
+		params.ID = packed[key].(string)
+	}
+	return params
+}
+
+func decodeAirplaneTakeOffParams(args [1]string, argsEscaped bool, r *http.Request) (params AirplaneTakeOffParams, _ error) {
+	// Decode path: id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.ID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
 // MovingRegisterVehicleParams is parameters of moving_registerVehicle operation.
 type MovingRegisterVehicleParams struct {
 	// Тип транспорта.

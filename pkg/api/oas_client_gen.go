@@ -34,6 +34,12 @@ type Invoker interface {
 	//
 	// GET /airplane/{id}/parking
 	AirplaneGetParkingSpot(ctx context.Context, params AirplaneGetParkingSpotParams) (AirplaneGetParkingSpotRes, error)
+	// AirplaneTakeOff invokes airplane_takeOff operation.
+	//
+	// Удаляется самолет с карты.
+	//
+	// POST /airplane/{id}/take-off
+	AirplaneTakeOff(ctx context.Context, params AirplaneTakeOffParams) (AirplaneTakeOffRes, error)
 	// MapGetAirportMap invokes map_getAirportMap operation.
 	//
 	// Возвращает полную карту аэропорта в виде графа.
@@ -213,6 +219,97 @@ func (c *Client) sendAirplaneGetParkingSpot(ctx context.Context, params Airplane
 
 	stage = "DecodeResponse"
 	result, err := decodeAirplaneGetParkingSpotResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// AirplaneTakeOff invokes airplane_takeOff operation.
+//
+// Удаляется самолет с карты.
+//
+// POST /airplane/{id}/take-off
+func (c *Client) AirplaneTakeOff(ctx context.Context, params AirplaneTakeOffParams) (AirplaneTakeOffRes, error) {
+	res, err := c.sendAirplaneTakeOff(ctx, params)
+	return res, err
+}
+
+func (c *Client) sendAirplaneTakeOff(ctx context.Context, params AirplaneTakeOffParams) (res AirplaneTakeOffRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("airplane_takeOff"),
+		semconv.HTTPRequestMethodKey.String("POST"),
+		semconv.HTTPRouteKey.String("/airplane/{id}/take-off"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, AirplaneTakeOffOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [3]string
+	pathParts[0] = "/airplane/"
+	{
+		// Encode "id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.StringToString(params.ID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	pathParts[2] = "/take-off"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "POST", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeAirplaneTakeOffResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}

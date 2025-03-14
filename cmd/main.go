@@ -32,14 +32,12 @@ func main() {
 
 	cfg, err := config.LoadConfig(*configPath)
 	if err != nil {
-		logger.GlobalLogger.Fatal("failed to load config", zap.Error(err))
-		logger.GlobalLogger.Fatal("failed to load config", zap.String("error", err.Error()))
+		panic(err)
 	}
 
 	err = logger.InitLogger(cfg.Logger.Level, cfg.Logger.Development)
 	if err != nil {
-		logger.GlobalLogger.Fatal("failed to initialize logger", zap.Error(err))
-		logger.GlobalLogger.Fatal("failed to initialize logger", zap.String("error", err.Error()))
+		panic(err)
 	}
 	defer func() {
 		_ = logger.GlobalLogger.Sync()
@@ -57,7 +55,6 @@ func main() {
 
 	airportMap, err := service.GetAirportMap(context.Background())
 	if err != nil {
-		logger.GlobalLogger.Fatal("failed to get airport map", zap.Error(err))
 		logger.GlobalLogger.Fatal("failed to get airport map", zap.String("error", err.Error()))
 	}
 
@@ -80,7 +77,6 @@ func main() {
 
 	server, err := api.NewServer(ctrl, api.WithErrorHandler(middlewares.ErrorHandler))
 	if err != nil {
-		logger.GlobalLogger.Fatal("failed to create server", zap.Error(err))
 		logger.GlobalLogger.Fatal("failed to create server", zap.String("error", err.Error()))
 	}
 
@@ -97,7 +93,6 @@ func main() {
 		logger.GlobalLogger.Info("server is starting", zap.Int("port", cfg.Server.Port))
 		err = httpServer.ListenAndServe()
 		if err != nil && !errors.Is(err, http.ErrServerClosed) {
-			logger.GlobalLogger.Fatal("server failed to start", zap.Error(err))
 			logger.GlobalLogger.Fatal("server failed to start", zap.String("error", err.Error()))
 		}
 	}()
@@ -110,7 +105,6 @@ func main() {
 
 	err = httpServer.Shutdown(ctx)
 	if err != nil {
-		logger.GlobalLogger.Error("failed to shutdown server gracefully", zap.Error(err))
 		logger.GlobalLogger.Error("failed to shutdown server gracefully", zap.String("error", err.Error()))
 	} else {
 		logger.GlobalLogger.Info("server shutdown completed")

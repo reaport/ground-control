@@ -5,6 +5,10 @@ type AirplaneGetParkingSpotRes interface {
 	airplaneGetParkingSpotRes()
 }
 
+type AirplaneTakeOffRes interface {
+	airplaneTakeOffRes()
+}
+
 type MapUpdateAirportMapRes interface {
 	mapUpdateAirportMapRes()
 }

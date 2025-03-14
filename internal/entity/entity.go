@@ -10,7 +10,7 @@ type AirportMap struct {
 }
 
 type AirportMapConfig struct {
-	AirstripNodeId string
+	AirstripNodeID string
 }
 
 type Edge struct {

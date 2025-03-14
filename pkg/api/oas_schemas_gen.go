@@ -33,6 +33,16 @@ func (s *AirplaneGetParkingSpotOK) SetNodeId(val string) {
 
 func (*AirplaneGetParkingSpotOK) airplaneGetParkingSpotRes() {}
 
+// AirplaneTakeOffNotFound is response for AirplaneTakeOff operation.
+type AirplaneTakeOffNotFound struct{}
+
+func (*AirplaneTakeOffNotFound) airplaneTakeOffRes() {}
+
+// AirplaneTakeOffOK is response for AirplaneTakeOff operation.
+type AirplaneTakeOffOK struct{}
+
+func (*AirplaneTakeOffOK) airplaneTakeOffRes() {}
+
 // Ref: #/components/schemas/AirportMap
 type AirportMap struct {
 	Nodes []Node `json:"nodes"`
