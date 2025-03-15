@@ -8,8 +8,8 @@ interface AirportGraphProps {
 
 export default function AirportGraph({ data }: AirportGraphProps) {
   const [graphData, setGraphData] = useState<GraphData>({ nodes: [], links: [] });
-  const [hoverNode, setHoverNode] = useState<NodeObject | null>(null);
-  const hoverNodeRef = useRef<NodeObject | null>(null);
+  const [selectedNode, setSelectedNode] = useState<NodeObject | null>(null);
+  const graphRef = useRef<any>(null);
 
   useEffect(() => {
     if (data) {
@@ -24,9 +24,13 @@ export default function AirportGraph({ data }: AirportGraphProps) {
     }
   }, [data]);
 
+  const handleClick = (node?: NodeObject) => {
+    setSelectedNode(node || null);
+  };
+
   return (
-    <div style={{ width: "100vw", height: "100vh", position: "relative" }}>
-      {hoverNode && hoverNode.vehicles && hoverNode.vehicles.length > 0 && (
+    <div style={{ width: "100vw", height: "100vh", position: "relative" }} onClick={() => handleClick()}> 
+      {selectedNode && selectedNode.vehicles && selectedNode.vehicles.length > 0 && (
         <div style={{
           position: "absolute",
           top: 10,
@@ -36,15 +40,16 @@ export default function AirportGraph({ data }: AirportGraphProps) {
           padding: "8px",
           borderRadius: "4px",
         }}>
-          <strong>Vehicles at {hoverNode.id}:</strong>
+          <strong>Vehicles at {selectedNode.id}:</strong>
           <ul>
-            {hoverNode.vehicles.map((v) => (
+            {selectedNode.vehicles.map((v) => (
               <li key={v.id}>{v.id} ({v.type})</li>
             ))}
           </ul>
         </div>
       )}
       <ForceGraph
+        ref={graphRef}
         graphData={graphData}
         nodeAutoColorBy={(node: any) => node.hasVehicles ? "red" : "group"}
         linkDirectionalArrowLength={5}
@@ -61,11 +66,7 @@ export default function AirportGraph({ data }: AirportGraphProps) {
           ctx.arc(node.x, node.y, 5, 0, 2 * Math.PI, false);
           ctx.fill();
         }}
-        onNodeHover={(node: any) => {
-          hoverNodeRef.current = node || null;
-          setHoverNode(node || null);
-        }}
-        linkLabel={(link: LinkObject) => `Distance: ${link.distance}`}
+        onNodeClick={(node: any) => handleClick(node)}
       />
     </div>
   );
