@@ -35,10 +35,11 @@ func (c *Controller) MovingRegisterVehicle(
 	vehicleInitInfo, err := c.mapService.RegisterVehicle(ctx, vehicleType)
 	if err != nil {
 		err = fmt.Errorf("c.mapService.RegisterVehicle: %w", err)
-		if errors.Is(err, entity.ErrAirstripIsFull) {
+		if errors.Is(err, entity.ErrAirstripIsFull) ||
+			errors.Is(err, entity.ErrAirstripNotFound) {
 			logger.GlobalLogger.Error(
 				"airstrip is full",
-				zap.Error(err),
+				zap.String("error", err.Error()),
 				zap.String("type", string(params.Type)),
 			)
 			return &api.MovingRegisterVehicleConflict{}, nil
@@ -46,7 +47,7 @@ func (c *Controller) MovingRegisterVehicle(
 
 		logger.GlobalLogger.Error(
 			"failed to register vehicle",
-			zap.Error(err),
+			zap.String("error", err.Error()),
 			zap.String("type", string(params.Type)),
 		)
 		return nil, err

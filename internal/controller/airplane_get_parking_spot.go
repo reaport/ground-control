@@ -26,7 +26,7 @@ func (c *Controller) AirplaneGetParkingSpot(
 		if errors.Is(err, entity.ErrAirplaneParkingSpotIsFull) {
 			logger.GlobalLogger.Error(
 				"airplane parking spot is full",
-				zap.Error(err),
+				zap.String("error", err.Error()),
 				zap.String("airplane_id", req.ID),
 			)
 			return &api.AirplaneGetParkingSpotConflict{}, nil
@@ -34,7 +34,7 @@ func (c *Controller) AirplaneGetParkingSpot(
 
 		logger.GlobalLogger.Error(
 			"failed to get airplane parking spot",
-			zap.Error(err),
+			zap.String("error", err.Error()),
 			zap.String("airplane_id", req.ID),
 		)
 		return nil, err

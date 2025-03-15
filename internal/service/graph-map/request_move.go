@@ -12,7 +12,15 @@ func (s *Service) RequestMove(
 	vehicleID string,
 	nodeIDFrom, nodeIDTo string,
 	vehicleType entity.VehicleType,
+	withAirplane *string,
 ) (float64, error) {
+	if vehicleType != entity.VehicleTypeFollowMe && withAirplane != nil {
+		return 0, fmt.Errorf(
+			"%w: withAirplane is not supported for vehicle type %s",
+			entity.ErrInvalidVehicleType, vehicleType,
+		)
+	}
+
 	s.mapMutex.Lock()
 	defer s.mapMutex.Unlock()
 
@@ -35,8 +43,25 @@ func (s *Service) RequestMove(
 		)
 	}
 
+	if withAirplane != nil {
+		if !nodeTo.IsValidType(entity.VehicleTypeAirplane) {
+			return 0, fmt.Errorf(
+				"%w: node %s does not support vehicle type %s",
+				entity.ErrInvalidVehicleType,
+				nodeIDTo,
+				entity.VehicleTypeAirplane,
+			)
+		}
+	}
+
 	if !nodeFrom.ContainsVehicle(vehicleID) {
 		return 0, fmt.Errorf("%w: vehicle %s not found in node %s", entity.ErrVehicleNotFound, vehicleID, nodeIDFrom)
+	}
+
+	if withAirplane != nil {
+		if !nodeFrom.ContainsVehicle(*withAirplane) {
+			return 0, fmt.Errorf("%w: vehicle %s not found in node %s", entity.ErrVehicleNotFound, *withAirplane, nodeIDFrom)
+		}
 	}
 
 	edge := s.getEdge(nodeIDFrom, nodeIDTo)
@@ -53,6 +78,19 @@ func (s *Service) RequestMove(
 
 	if !isDuplicate {
 		nodeTo.AddVehicle(entity.NewVehicle(vehicleID, vehicleType))
+	}
+
+	if withAirplane != nil {
+		canMove, isDuplicate = s.canMoveToNode(nodeTo, entity.VehicleTypeAirplane, *withAirplane)
+		if !canMove {
+			return 0, fmt.Errorf("%w: cannot move vehicle %s to node %s", entity.ErrMoveNotAllowed, *withAirplane, nodeIDTo)
+		}
+
+		nodeFrom.RemoveVehicle(*withAirplane)
+
+		if !isDuplicate {
+			nodeTo.AddVehicle(entity.NewVehicle(*withAirplane, entity.VehicleTypeAirplane))
+		}
 	}
 
 	return edge.Distance, nil

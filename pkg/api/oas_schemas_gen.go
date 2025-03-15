@@ -33,6 +33,16 @@ func (s *AirplaneGetParkingSpotOK) SetNodeId(val string) {
 
 func (*AirplaneGetParkingSpotOK) airplaneGetParkingSpotRes() {}
 
+// AirplaneTakeOffNotFound is response for AirplaneTakeOff operation.
+type AirplaneTakeOffNotFound struct{}
+
+func (*AirplaneTakeOffNotFound) airplaneTakeOffRes() {}
+
+// AirplaneTakeOffOK is response for AirplaneTakeOff operation.
+type AirplaneTakeOffOK struct{}
+
+func (*AirplaneTakeOffOK) airplaneTakeOffRes() {}
+
 // Ref: #/components/schemas/AirportMap
 type AirportMap struct {
 	Nodes []Node `json:"nodes"`
@@ -57,6 +67,22 @@ func (s *AirportMap) SetNodes(val []Node) {
 // SetEdges sets the value of Edges.
 func (s *AirportMap) SetEdges(val []Edge) {
 	s.Edges = val
+}
+
+// Ref: #/components/schemas/AirportMapConfig
+type AirportMapConfig struct {
+	// ID узла взлетно-посадочной полосы.
+	AirstripNodeId string `json:"airstripNodeId"`
+}
+
+// GetAirstripNodeId returns the value of AirstripNodeId.
+func (s *AirportMapConfig) GetAirstripNodeId() string {
+	return s.AirstripNodeId
+}
+
+// SetAirstripNodeId sets the value of AirstripNodeId.
+func (s *AirportMapConfig) SetAirstripNodeId(val string) {
+	s.AirstripNodeId = val
 }
 
 // Ref: #/components/schemas/Edge
@@ -387,6 +413,8 @@ type MovingRequestMoveReq struct {
 	From string `json:"from"`
 	// ID следующего узла.
 	To string `json:"to"`
+	// ID самолета, который следует за follow-me.
+	WithAirplane OptString `json:"withAirplane"`
 }
 
 // GetVehicleId returns the value of VehicleId.
@@ -409,6 +437,11 @@ func (s *MovingRequestMoveReq) GetTo() string {
 	return s.To
 }
 
+// GetWithAirplane returns the value of WithAirplane.
+func (s *MovingRequestMoveReq) GetWithAirplane() OptString {
+	return s.WithAirplane
+}
+
 // SetVehicleId sets the value of VehicleId.
 func (s *MovingRequestMoveReq) SetVehicleId(val string) {
 	s.VehicleId = val
@@ -427,6 +460,11 @@ func (s *MovingRequestMoveReq) SetFrom(val string) {
 // SetTo sets the value of To.
 func (s *MovingRequestMoveReq) SetTo(val string) {
 	s.To = val
+}
+
+// SetWithAirplane sets the value of WithAirplane.
+func (s *MovingRequestMoveReq) SetWithAirplane(val OptString) {
+	s.WithAirplane = val
 }
 
 // Ref: #/components/schemas/Node

@@ -11,6 +11,7 @@ type (
 		GetAirportMap(ctx context.Context) (*entity.AirportMap, error)
 		RefreshAirportMap(ctx context.Context) error
 		UpdateAirportMap(_ context.Context, airportMap *entity.AirportMap) error
+		GetAirportMapConfig(ctx context.Context) (*entity.AirportMapConfig, error)
 
 		RegisterVehicle(ctx context.Context, vehicleType entity.VehicleType) (*entity.VehicleInitInfo, error)
 		GetRoute(ctx context.Context, nodeIDFrom, nodeIDTo string, vehicleType entity.VehicleType) ([]string, error)
@@ -19,10 +20,12 @@ type (
 			vehicleID string,
 			nodeIDFrom, nodeIDTo string,
 			vehicleType entity.VehicleType,
+			withAirplane *string,
 		) (float64, error)
 		NotifyArrival(ctx context.Context, nodeID string, vehicleID string) error
 
 		GetAirplaneParkingSpot(ctx context.Context, airplaneID string) (string, error)
+		TakeOffAirplane(ctx context.Context, airplaneID string) error
 	}
 
 	EventSender interface {

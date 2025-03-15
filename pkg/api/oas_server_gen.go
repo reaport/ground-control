@@ -14,12 +14,24 @@ type Handler interface {
 	//
 	// GET /airplane/{id}/parking
 	AirplaneGetParkingSpot(ctx context.Context, params AirplaneGetParkingSpotParams) (AirplaneGetParkingSpotRes, error)
+	// AirplaneTakeOff implements airplane_takeOff operation.
+	//
+	// Удаляется самолет с карты.
+	//
+	// POST /airplane/{id}/take-off
+	AirplaneTakeOff(ctx context.Context, params AirplaneTakeOffParams) (AirplaneTakeOffRes, error)
 	// MapGetAirportMap implements map_getAirportMap operation.
 	//
 	// Возвращает полную карту аэропорта в виде графа.
 	//
 	// GET /map
 	MapGetAirportMap(ctx context.Context) (*AirportMap, error)
+	// MapGetAirportMapConfig implements map_getAirportMapConfig operation.
+	//
+	// Возвращает конфигурацию аэропорта.
+	//
+	// GET /map/config
+	MapGetAirportMapConfig(ctx context.Context) (*AirportMapConfig, error)
 	// MapRefreshAirportMap implements map_refreshAirportMap operation.
 	//
 	// Возвращает карту к исходному состоянию.

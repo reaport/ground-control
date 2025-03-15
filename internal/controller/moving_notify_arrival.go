@@ -28,7 +28,7 @@ func (c *Controller) MovingNotifyArrival(
 		case errors.Is(err, entity.ErrNodeNotFound):
 			logger.GlobalLogger.Error(
 				"node not found",
-				zap.Error(err),
+				zap.String("error", err.Error()),
 				zap.String("node_id", req.NodeId),
 				zap.String("vehicle_id", req.VehicleId),
 			)
@@ -37,7 +37,7 @@ func (c *Controller) MovingNotifyArrival(
 		case errors.Is(err, entity.ErrVehicleNotFound):
 			logger.GlobalLogger.Error(
 				"vehicle not found",
-				zap.Error(err),
+				zap.String("error", err.Error()),
 				zap.String("node_id", req.NodeId),
 				zap.String("vehicle_id", req.VehicleId),
 			)
@@ -48,7 +48,7 @@ func (c *Controller) MovingNotifyArrival(
 		default:
 			logger.GlobalLogger.Error(
 				"failed to notify arrival",
-				zap.Error(err),
+				zap.String("error", err.Error()),
 				zap.String("node_id", req.NodeId),
 				zap.String("vehicle_id", req.VehicleId),
 			)

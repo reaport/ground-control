@@ -25,6 +25,7 @@
     {
       "id": "garrage_to_parking_1",
       "types": [
+        "follow-me",
         "catering",
         "refueling",
         "cleaning",
@@ -37,6 +38,7 @@
     {
       "id": "garrage_from_parking_1",
       "types": [
+        "follow-me",
         "catering",
         "refueling",
         "cleaning",
@@ -49,6 +51,7 @@
     {
       "id": "garrage_to_parking_2",
       "types": [
+        "follow-me",
         "catering",
         "refueling",
         "cleaning",
@@ -61,6 +64,7 @@
     {
       "id": "garrage_from_parking_2",
       "types": [
+        "follow-me",
         "catering",
         "refueling",
         "cleaning",
@@ -93,6 +97,11 @@
     { "from": "garrage_from_parking_1", "to": "garrage", "distance": 100 },
 
     { "from": "garrage", "to": "garrage_to_parking_2", "distance": 100 },
-    { "from": "garrage_from_parking_2", "to": "garrage", "distance": 100 }
+    { "from": "garrage_from_parking_2", "to": "garrage", "distance": 100 },
+
+    { "from": "airplane_from_parking_1", "to": "garrage_from_parking_1", "distance": 150 },
+    { "from": "garrage_to_parking_1", "to": "parking_1", "distance": 100 },
+    { "from": "airplane_from_parking_2", "to": "garrage_from_parking_1", "distance": 150 },
+    { "from": "garrage_to_parking_2", "to": "parking_2", "distance": 150 }
   ]
 }

@@ -26,7 +26,7 @@ func (c *Controller) MovingGetRoute( //nolint:funlen // a lof of logs
 		err = fmt.Errorf("VehicleTypeFromAPI: %w", err)
 		logger.GlobalLogger.Error(
 			"failed to convert vehicle type from API",
-			zap.Error(err),
+			zap.String("error", err.Error()),
 			zap.String("type", string(req.Type)),
 			zap.String("from", req.From),
 			zap.String("to", req.To),
@@ -42,7 +42,7 @@ func (c *Controller) MovingGetRoute( //nolint:funlen // a lof of logs
 		case errors.Is(err, entity.ErrSameNodes):
 			logger.GlobalLogger.Error(
 				"requested route for same nodes",
-				zap.Error(err),
+				zap.String("error", err.Error()),
 				zap.String("from", req.From),
 				zap.String("to", req.To),
 				zap.String("vehicle_type", string(req.Type)),
@@ -52,7 +52,7 @@ func (c *Controller) MovingGetRoute( //nolint:funlen // a lof of logs
 		case errors.Is(err, entity.ErrNodeNotFound):
 			logger.GlobalLogger.Error(
 				"one or both nodes not found",
-				zap.Error(err),
+				zap.String("error", err.Error()),
 				zap.String("from", req.From),
 				zap.String("to", req.To),
 				zap.String("vehicle_type", string(req.Type)),
@@ -62,7 +62,7 @@ func (c *Controller) MovingGetRoute( //nolint:funlen // a lof of logs
 		case errors.Is(err, entity.ErrInvalidVehicleType):
 			logger.GlobalLogger.Error(
 				"invalid vehicle type for destination",
-				zap.Error(err),
+				zap.String("error", err.Error()),
 				zap.String("from", req.From),
 				zap.String("to", req.To),
 				zap.String("vehicle_type", string(req.Type)),
@@ -72,7 +72,7 @@ func (c *Controller) MovingGetRoute( //nolint:funlen // a lof of logs
 		case errors.Is(err, entity.ErrRouteNotFound):
 			logger.GlobalLogger.Error(
 				"route not found",
-				zap.Error(err),
+				zap.String("error", err.Error()),
 				zap.String("from", req.From),
 				zap.String("to", req.To),
 				zap.String("vehicle_type", string(req.Type)),
@@ -82,7 +82,7 @@ func (c *Controller) MovingGetRoute( //nolint:funlen // a lof of logs
 		default:
 			logger.GlobalLogger.Error(
 				"failed to get route",
-				zap.Error(err),
+				zap.String("error", err.Error()),
 				zap.String("from", req.From),
 				zap.String("to", req.To),
 				zap.String("vehicle_type", string(req.Type)),
